@@ -38,7 +38,8 @@ class SurtTestCase(unittest.TestCase):
 
     def test_domain_and_hash(self):
         surt = Surt.from_url('https://example.com/#who')
-        self.assertEqual(surt.parts, ['https://(', 'com,', 'example,)', '#who'])
+        self.assertEqual(surt.parts, [
+            'https://(', 'com,', 'example,)', '#who'])
 
     def test_domain_path_and_hash(self):
         surt = Surt.from_url('https://example.com/doctor#actors')
