@@ -1,0 +1,12 @@
+# for IA GitLab-CI
+stages:
+  - test
+
+before_script:
+  - make venv
+
+test:3.5:
+  stage: test
+  image: python:3.5
+  script:
+    - make check
