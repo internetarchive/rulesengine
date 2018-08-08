@@ -1,0 +1,11 @@
+certifi==2018.4.16
+chardet==3.0.4
+Django==2.1
+idna==2.7
+pytz==2018.5
+requests==2.19.1
+requests-file==1.4.3
+six==1.11.0
+surt==0.3.0
+tldextract==2.2.0
+urllib3==1.23
