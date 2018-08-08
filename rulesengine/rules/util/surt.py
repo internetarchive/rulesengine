@@ -1,6 +1,7 @@
 # XXX This is a simple implementation of a SURT library and not meant to be
 # authoratitive, as something doubtless already exists
 
+
 class Surt(object):
     """Represents a surt broken down into its component parts."""
 

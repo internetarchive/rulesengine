@@ -6,7 +6,6 @@ from django.http import HttpResponse
 
 class DateTimeEncoder(json.JSONEncoder):
     """JSON encoder which returns datetime objects in ISO format strings."""
-    
     def default(self, o):
         if isinstance(o, datetime):
             return o.isoformat()

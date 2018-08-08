@@ -14,10 +14,10 @@ def validate_rule_json(rule_json):
         'who',
         'enabled',
     ]
-    OPTIONAL_FIELDS = [
-        'private_comment',
-        'public_comment',
-    ]
+    # OPTIONAL_FIELDS = [
+    #     'private_comment',
+    #     'public_comment',
+    # ]
 
     missing_fields = []
     for field in REQUIRED_FIELDS:

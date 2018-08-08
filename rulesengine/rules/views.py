@@ -1,7 +1,5 @@
-from datetime import datetime
 import json
 
-from django.shortcuts import render
 from django.views import View
 from django.views.generic.detail import SingleObjectMixin
 
@@ -111,27 +109,28 @@ def rules_for_request(request):
     capture-date should be in the format yyyymmddhhmm"""
     surt = request.GET.get('surt')
     warc = request.GET.get('warc')
-    capture_date = int(request.GET.get('capture-date')) # XXX try/except
+    capture_date = int(request.GET.get('capture-date'))  # XXX try/except
     if surt is None or warc is None or capture_date is None:
         return error('surt, warc, and capture-date query string params'
                      ' are all required', {})
     surt = Surt(surt)
     tree = tree_for_surt(surt)
-    warc_parts = warc.split('-') # XXX validate warc name
-    warc_date = int(warc_parts[4][0:-5]) # Parse an int out of the date minus ms
+    warc_parts = warc.split('-')  # XXX validate warc name
+    warc_date = int(warc_parts[4][0:-5])  # Parse an int out of date minus ms
     applicable_rules = []
     for rule in tree:
+        # XXX Compare using datetime types rather than ints
         start = int(rule.capture_start.strftime('%Y%m%d%H%M'))
         end = int(rule.capture_end.strftime('%Y%m%d%H%M'))
         if ((warc_date > start and warc_date < end) and
-            (capture_date > start and capture_date < end)):
+                (capture_date > start and capture_date < end)):
             applicable_rules.append(rule)
     # Here is where we would make a surface-level decision on the action to
-    # be taken (block, auth, allow, rewrite, etc). A point of optimization would
-    # be to use django to only select the rules matching the date range, but for
-    # now, we select the whole tree. Also, date comparisons would probably be
-    # faster than coercing to strings, then to ints, but I was running short
-    # on time.
+    # be taken (block, auth, allow, rewrite, etc). A point of optimization
+    # would be to use django to only select the rules matching the date range,
+    # but for now, we select the whole tree. Also, date comparisons would
+    # probably be faster than coercing to strings, then to ints, but I was
+    # running short on time.
     return success([rule.summary() for rule in applicable_rules])
 
 # Stub out how rules apply
