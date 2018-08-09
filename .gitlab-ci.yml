@@ -3,7 +3,7 @@ stages:
   - test
 
 before_script:
-  - apt install -y python-virtualenv
+  - apt install -y virtualenv
   - make venv
 
 test:3.5:
