@@ -3,7 +3,7 @@ stages:
   - test
 
 before_script:
-  - apt install -y virtualenv
+  - apt-get update -qq && apt-get install -y virtualenv
   - make venv
 
 test:3.5:
