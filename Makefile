@@ -6,11 +6,18 @@ run: venv
 check: test lint
 
 .PHONY: test
-test: venv
+test: runtests coveragereport
+
+.PHONY: runtests
+runtests: venv
 	cd rulesengine; \
-	../venv/bin/coverage run --source=rules --omit="*/migrations/*,*/admin.py,*/apps.py" ./manage.py test; \
+	../venv/bin/coverage run --source=rules --omit="*/migrations/*,*/admin.py,*/apps.py" ./manage.py test
+
+.PHONY: coveragereport
+coveragereport:
+	cd rulesengine; \
 	../venv/bin/coverage report -m --skip-covered; \
-	rm .coverage
+	rm -f .coverage
 
 .PHONY: lint
 lint: venv

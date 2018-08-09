@@ -1,6 +1,8 @@
 from datetime import datetime
 import unittest
 
+import ujson
+
 from rules.utils import json
 
 
@@ -23,21 +25,24 @@ class JSONTestCase(unittest.TestCase):
 
     def test_success(self):
         response = json.success(self.obj)
-        self.assertEqual(
-            response.content.decode(),
-            '{"status":"success","message":"ok","result":{"start_date":'
-            '"1963-11-23T17:16:20Z","companions":["Rose","Mickey","Donna"]'
+        expected = ujson.loads('{"status":"success","message":"ok","result":{"start_date"'
+            ':"1963-11-23T17:16:20Z","companions":["Rose","Mickey","Donna"]'
             ',"enemies":["The Master","Daleks","Cybermen"]}}')
+        self.assertEqual(
+            ujson.loads(response.content.decode()),
+            expected)
 
     def test_error(self):
         response = json.error("dalek", None)
+        expected = ujson.loads('{"status":"error","message":"dalek"}')
         self.assertEqual(
-            response.content.decode(),
-            '{"status":"error","message":"dalek"}')
+            ujson.loads(response.content.decode()),
+            expected)
 
     def test_error_with_obj(self):
         response = json.error("dalek", {'exterminate': True})
+        expected = ujson.loads('{"status":"error","message":"dalek","result":'
+        '{"exterminate":true}}')
         self.assertEqual(
-            response.content.decode(),
-            '{"status":"error","message":"dalek","result":{"exterminate"'
-            ':true}}')
+            ujson.loads(response.content.decode()),
+            expected)
