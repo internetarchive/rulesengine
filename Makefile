@@ -18,8 +18,9 @@ lint: venv
 
 venv:
 	virtualenv --python `which python3` venv
-	venv/bin/pip install -r requirements.txt
+	venv/bin/pip install --index-url https://devpi.archive.org/ait/packages/+simple/ -r requirements.txt
 
 .PHONY: clean
 clean:
 	rm -rf venv
+	find rulesengine/ -name __pycache__ -or -name "*.py[co]" -exec rm -rf {} \;

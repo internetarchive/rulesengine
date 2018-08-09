@@ -1,15 +1,13 @@
 from datetime import datetime
-import json
+import ujson
 
 from django.http import HttpResponse
 
 
-class DateTimeEncoder(json.JSONEncoder):
-    """JSON encoder which returns datetime objects in ISO format strings."""
-    def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-        return super(DateTimeEncoder, self).default(o)
+def date_renderer(obj):
+    if isinstance(obj, datetime):
+        return obj.replace(tzinfo=None).isoformat() + 'Z'
+    return obj
 
 
 def success(obj):
@@ -21,11 +19,11 @@ def success(obj):
     Returns:
     A Django HttpResponse including the JSON with the proper MIME type.
     """
-    return HttpResponse(json.dumps({
+    return HttpResponse(ujson.dumps({
         'status': 'success',
         'message': 'ok',
         'result': obj,
-    }, cls=DateTimeEncoder), content_type='application/json')
+    }, pre_encode_hook=date_renderer), content_type='application/json')
 
 
 def error(message, obj):
@@ -45,5 +43,5 @@ def error(message, obj):
     }
     if obj is not None:
         result['result'] = obj
-    return HttpResponse(json.dumps(result, cls=DateTimeEncoder),
+    return HttpResponse(ujson.dumps(result, pre_encode_hook=date_renderer),
                         content_type='application/json')
