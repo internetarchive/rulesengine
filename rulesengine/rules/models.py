@@ -1,3 +1,5 @@
+from dateutil.parser import parse as parse_date
+
 from django.db import models
 
 
@@ -5,9 +7,11 @@ class RuleBase(models.Model):
     """Abstract model representing the base fields for rules and changes."""
 
     POLICY_CHOICES = (
-        ('b', 'block'),
-        ('a', 'allow'),
-        ('r', 'robots'),
+        ('block', 'Block playback'),
+        ('message', 'Block playback with message'),
+        ('allow', 'Allow playback'),
+        ('auth', 'Require auth for playback'),
+        ('rewrite', 'Rewrite playback'),
     )
 
     RULE_TYPES = (
@@ -16,17 +20,30 @@ class RuleBase(models.Model):
         ('regex', 'regular expression'),
         ('daterange', 'date range'),
         ('warcname', 'WARC name (or regex)'),
+        ('collection', 'collection'),
+        ('partner', 'partner'),
     )
 
-    policy = models.CharField(max_length=1, choices=POLICY_CHOICES)
+    policy = models.CharField(max_length=10, choices=POLICY_CHOICES)
     rule_type = models.CharField(max_length=10, choices=RULE_TYPES)
-    # We would also include a payload field here for any rewrite data and such
-    surt = models.TextField()
-    capture_start = models.DateTimeField()
-    capture_end = models.DateTimeField()
-    retrieval_start = models.DateTimeField()
-    retrieval_end = models.DateTimeField()
-    seconds_since_capture = models.IntegerField()
+
+    # Used for surt and surt-neg rule types
+    surt = models.TextField(blank=True)
+
+    # Used for daterange rule types
+    date_start = models.DateTimeField(null=True)
+    date_end = models.DateTimeField(null=True)
+
+    # Used for WARC-related rule types
+    collection = models.TextField(blank=True)
+    partner = models.TextField(blank=True)
+    warc_match = models.TextField(blank=True)
+
+    # Rewrite rules
+    rewrite_from = models.TextField(blank=True)
+    rewrite_to = models.TextField(blank=True)
+
+    # Metadata
     who = models.CharField(max_length=50)
     private_comment = models.TextField(blank=True)
     public_comment = models.TextField(blank=True)
@@ -35,6 +52,20 @@ class RuleBase(models.Model):
     class Meta:
         abstract = True
 
+    def get_pertinent_field(self):
+        actions = {
+            'surt': lambda x: x.surt,
+            'surt-neg': lambda x: x.surt,
+            'regex': lambda x: x.surt,
+            'daterange': lambda x: '{} to {}'.format(
+                x.date_start.isoformat(),
+                x.date_end.isoformat()),
+            'warcname': lambda x: x.warc_match,
+            'collection': lambda x: x.collection,
+            'partner': lambda x: x.partner,
+        }
+        return actions[self.rule_type](self)
+
     def populate(self, values):
         """Given an object á là `summary`, populate the given fields.
 
@@ -42,19 +73,20 @@ class RuleBase(models.Model):
         values -- A Python dict containing keys named after the fields in the
             model.
         """
-        self.surt = values['surt']
-        self.capture_start = values['capture_start']
-        self.capture_end = values['capture_end']
-        self.retrieval_start = values['retrieval_start']
-        self.retrieval_end = values['retrieval_end']
-        self.seconds_since_capture = values['seconds_since_capture']
+        self.policy = values['policy']
+        self.rule_type = values['rule_type']
+        self.surt = values.get('surt', '')
+        self.date_start = parse_date(values.get('date_start'))
+        self.date_end = parse_date(values.get('date_end'))
+        self.collection = values.get('collection', '')
+        self.partner = values.get('partner', '')
+        self.warc_match = values.get('warc_match', '')
+        self.rewrite_from = values.get('rewrite_from', '')
+        self.rewrite_to = values.get('rewrite_to', '')
         self.who = values['who']
-        self.enabled = values['enabled']
-        # Optional arguments
-        if 'public_comment' in values:
-            self.public_comment = values['public_comment']
-        if 'private_comment' in values:
-            self.private_comment = values['private_comment']
+        self.public_comment = values.get('public_comment', '')
+        self.private_comment = values.get('private_comment', '')
+        self.enabled = values['enabled'] == 'true'
 
 
 class Rule(RuleBase):
@@ -64,13 +96,16 @@ class Rule(RuleBase):
         """Returns an object with publicly visible fields."""
         return {
             'id': self.id,
-            'policy': self.get_policy_display(),
+            'policy': self.policy,
+            'rule_type': self.rule_type,
             'surt': self.surt,
-            'capture_start': self.capture_start,
-            'capture_end': self.capture_end,
-            'retrieval_start': self.retrieval_start,
-            'retrieval_end': self.retrieval_end,
-            'seconds_since_capture': self.seconds_since_capture,
+            'date_start': self.date_start,
+            'date_end': self.date_end,
+            'collection': self.collection,
+            'partner': self.partner,
+            'warc_match': self.warc_match,
+            'rewrite_from': self.rewrite_from,
+            'rewrite_to': self.rewrite_to,
             'who': self.who,
             'public_comment': self.public_comment,
             'enabled': self.enabled,
@@ -90,9 +125,12 @@ class Rule(RuleBase):
         """Get a string representation of the rule for the Django admin.
 
         Returns:
-        The policy type and the SURT
+        The policy type, the rule type, and the pertinent field
         """
-        return '{} {}'.format(self.get_policy_display().upper(), self.surt)
+        return '{} {} ({})'.format(
+            self.get_policy_display().upper(),
+            self.get_rule_type_display(),
+            self.get_pertinent_field())
 
     class Meta:
         indexes = [
@@ -147,13 +185,16 @@ class RuleChange(RuleBase):
             'user': self.change_user,
             'comment': self.change_comment,
             'type': self.get_change_type_display(),
-            'policy': self.get_policy_display(),
+            'policy': self.policy,
+            'rule_type': self.rule_type,
             'surt': self.surt,
-            'capture_start': self.capture_start,
-            'capture_end': self.capture_end,
-            'retrieval_start': self.retrieval_start,
-            'retrieval_end': self.retrieval_end,
-            'seconds_since_capture': self.seconds_since_capture,
+            'date_start': self.date_start,
+            'date_end': self.date_end,
+            'collection': self.collection,
+            'partner': self.partner,
+            'warc_match': self.warc_match,
+            'rewrite_from': self.rewrite_from,
+            'rewrite_to': self.rewrite_to,
             'who': self.who,
             'public_comment': self.public_comment,
             'private_comment': self.private_comment,
