@@ -25,7 +25,7 @@ def success(obj):
         'status': 'success',
         'message': 'ok',
         'result': obj,
-    }, cls=DateTimeEncoder, indent=4), content_type='application/json')
+    }, cls=DateTimeEncoder), content_type='application/json')
 
 
 def error(message, obj):
@@ -45,5 +45,5 @@ def error(message, obj):
     }
     if obj is not None:
         result['result'] = obj
-    return HttpResponse(json.dumps(result, cls=DateTimeEncoder, indent=4),
+    return HttpResponse(json.dumps(result, cls=DateTimeEncoder),
                         content_type='application/json')
