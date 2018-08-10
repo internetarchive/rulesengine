@@ -26,7 +26,8 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.get_pertinent_field(), '(org,')
 
         base.rule_type = 'surt-neg'
-        self.assertEqual(base.get_pertinent_field(), ('(org,', '(org,archive,'))
+        self.assertEqual(
+            base.get_pertinent_field(), ('(org,', '(org,archive,'))
 
         base.rule_type = 'regex'
         self.assertEqual(base.get_pertinent_field(), '(org,')
