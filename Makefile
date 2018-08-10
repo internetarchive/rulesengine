@@ -1,6 +1,9 @@
 .PHONY: run
-run: venv
+run: venv rulesengine/db.sqlite3
 	venv/bin/python rulesengine/manage.py runserver_plus
+
+rulesengine/db.sqlite3:
+	cd rulesengine && ../venv/bin/python manage.py migrate
 
 .PHONY: check
 check: test lint

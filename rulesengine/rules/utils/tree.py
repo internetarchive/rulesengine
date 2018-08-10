@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from rules.models import Rule
 
 
@@ -11,6 +13,15 @@ def tree_for_surt(surt):
     * http://(org,
     * http://(org,archive,)
     * http://(org,archive,)/somepage
+
+    Note that this currently doesn't differentiate on rule-type. That is, it
+    doesn't check any date ranges, SURT negations, or WARC files.
+
+    Arguments:
+    surt -- The SURT to find the tree of rules for.
+
+    Returns:
+    A QuerySet of rules that match each level of the tree.
     """
     surt_parts = surt.parts
     tree_surts = []
@@ -20,8 +31,13 @@ def tree_for_surt(surt):
             part = part[0:-1]
         tree_surts.append(part)
         surt_parts.pop()
-    tree_rules = []
-    for tree_part in tree_surts:
-        for rule in Rule.objects.filter(surt=tree_part):
-            tree_rules.append(rule)
-    return tree_rules
+    return Rule.objects.filter(surt__in=tree_surts)
+    # return Rule.objects.filter(
+    #     surt__in=tree_surts,
+    #     Q(rule_type='surt')
+    #     | (Q(rule_type='surt_neg') & ~Q(neg_surt=str(surt)))
+    #     | (Q(rule_type='daterange') & Q()))
+
+
+# SURT always Used
+# SURT negation will also \have a positive match SURT (e.g org,archive and not org,archive,api)
