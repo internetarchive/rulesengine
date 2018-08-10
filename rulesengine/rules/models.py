@@ -28,7 +28,8 @@ class RuleBase(models.Model):
     rule_type = models.CharField(max_length=10, choices=RULE_TYPES)
 
     # Used for surt and surt-neg rule types
-    surt = models.TextField(blank=True)
+    surt = models.TextField()
+    neg_surt = models.TextField(blank=True)
 
     # Used for daterange rule types
     date_start = models.DateTimeField(null=True)
@@ -55,11 +56,9 @@ class RuleBase(models.Model):
     def get_pertinent_field(self):
         actions = {
             'surt': lambda x: x.surt,
-            'surt-neg': lambda x: x.surt,
+            'surt-neg': lambda x: (x.surt, x.neg_surt),
             'regex': lambda x: x.surt,
-            'daterange': lambda x: '{} to {}'.format(
-                x.date_start.isoformat(),
-                x.date_end.isoformat()),
+            'daterange': lambda x: (x.date_start, x.date_end),
             'warcname': lambda x: x.warc_match,
             'collection': lambda x: x.collection,
             'partner': lambda x: x.partner,
@@ -75,7 +74,8 @@ class RuleBase(models.Model):
         """
         self.policy = values['policy']
         self.rule_type = values['rule_type']
-        self.surt = values.get('surt', '')
+        self.surt = values['surt']
+        self.neg_surt = values.get('neg_surt', '')
         self.date_start = parse_date(values.get('date_start'))
         self.date_end = parse_date(values.get('date_end'))
         self.collection = values.get('collection', '')
@@ -99,6 +99,7 @@ class Rule(RuleBase):
             'policy': self.policy,
             'rule_type': self.rule_type,
             'surt': self.surt,
+            'neg_surt': self.neg_surt,
             'date_start': self.date_start,
             'date_end': self.date_end,
             'collection': self.collection,
@@ -188,6 +189,7 @@ class RuleChange(RuleBase):
             'policy': self.policy,
             'rule_type': self.rule_type,
             'surt': self.surt,
+            'neg_surt': self.neg_surt,
             'date_start': self.date_start,
             'date_end': self.date_end,
             'collection': self.collection,

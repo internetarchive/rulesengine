@@ -15,6 +15,7 @@ class RuleBaseTestCase(TestCase):
         now = datetime.now()
         base = RuleBase(
             surt='(org,',
+            neg_surt=('(org,archive,'),
             date_start=now,
             date_end=now,
             collection='Planets',
@@ -25,15 +26,13 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.get_pertinent_field(), '(org,')
 
         base.rule_type = 'surt-neg'
-        self.assertEqual(base.get_pertinent_field(), '(org,')
+        self.assertEqual(base.get_pertinent_field(), ('(org,', '(org,archive,'))
 
         base.rule_type = 'regex'
         self.assertEqual(base.get_pertinent_field(), '(org,')
 
         base.rule_type = 'daterange'
-        self.assertEqual(base.get_pertinent_field(), '{} to {}'.format(
-            now.isoformat(),
-            now.isoformat()))
+        self.assertEqual(base.get_pertinent_field(), (now, now))
 
         base.rule_type = 'warcname'
         self.assertEqual(base.get_pertinent_field(), 'jupiter')
@@ -51,6 +50,7 @@ class RuleBaseTestCase(TestCase):
             'policy': 'block',
             'rule_type': 'surt',
             'surt': '(org,',
+            'neg_surt': '(org,archive,',
             'date_start': now.isoformat(),
             'date_end': now.isoformat(),
             'collection': 'Planets',
@@ -66,6 +66,7 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.policy, 'block')
         self.assertEqual(base.rule_type, 'surt')
         self.assertEqual(base.surt, '(org,')
+        self.assertEqual(base.neg_surt, '(org,archive,')
         self.assertEqual(base.date_start, now)
         self.assertEqual(base.date_end, now)
         self.assertEqual(base.collection, 'Planets')
@@ -105,6 +106,7 @@ class RuleTestCase(TestCase):
             'policy': 'block',
             'rule_type': 'surt',
             'surt': '(org,',
+            'neg_surt': '',
             'date_start': now,
             'date_end': now,
             'collection': 'Planets',
@@ -141,6 +143,7 @@ class RuleTestCase(TestCase):
             'policy': 'block',
             'rule_type': 'surt',
             'surt': '(org,',
+            'neg_surt': '',
             'date_start': now,
             'date_end': now,
             'collection': 'Planets',
@@ -236,6 +239,7 @@ class RuleChangeTestCase(TestCase):
             'policy': 'block',
             'rule_type': 'surt-neg',
             'surt': '(org,',
+            'neg_surt': '',
             'date_start': self.now,
             'date_end': self.now,
             'collection': 'Planets',
