@@ -38,4 +38,5 @@ def tree_for_surt(surt):
 
 
 # SURT always Used
-# SURT negation will also \have a positive match SURT (e.g org,archive and not org,archive,api)
+# SURT negation will also have a positive match SURT (e.g org,archive and not
+# org,archive,api)
