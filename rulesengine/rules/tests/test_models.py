@@ -11,45 +11,11 @@ from rules.models import (
 
 class RuleBaseTestCase(TestCase):
 
-    def test_get_pertinent_field(self):
-        now = datetime.now()
-        base = RuleBase(
-            surt='(org,',
-            neg_surt=('(org,archive,'),
-            date_start=now,
-            date_end=now,
-            collection='Planets',
-            partner='Holst',
-            warc_match='jupiter')
-
-        base.rule_type = 'surt'
-        self.assertEqual(base.get_pertinent_field(), '(org,')
-
-        base.rule_type = 'surt-neg'
-        self.assertEqual(
-            base.get_pertinent_field(), ('(org,', '(org,archive,'))
-
-        base.rule_type = 'regex'
-        self.assertEqual(base.get_pertinent_field(), '(org,')
-
-        base.rule_type = 'daterange'
-        self.assertEqual(base.get_pertinent_field(), (now, now))
-
-        base.rule_type = 'warcname'
-        self.assertEqual(base.get_pertinent_field(), 'jupiter')
-
-        base.rule_type = 'collection'
-        self.assertEqual(base.get_pertinent_field(), 'Planets')
-
-        base.rule_type = 'partner'
-        self.assertEqual(base.get_pertinent_field(), 'Holst')
-
     def test_populate(self):
         now = datetime.now()
         base = RuleBase()
         base.populate({
             'policy': 'block',
-            'rule_type': 'surt',
             'surt': '(org,',
             'neg_surt': '(org,archive,',
             'date_start': now.isoformat(),
@@ -65,7 +31,6 @@ class RuleBaseTestCase(TestCase):
             'enabled': 'true',
         })
         self.assertEqual(base.policy, 'block')
-        self.assertEqual(base.rule_type, 'surt')
         self.assertEqual(base.surt, '(org,')
         self.assertEqual(base.neg_surt, '(org,archive,')
         self.assertEqual(base.date_start, now)
@@ -88,7 +53,6 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
-            'rule_type': 'surt',
             'surt': '(org,',
             'date_start': now.isoformat(),
             'date_end': now.isoformat(),
@@ -105,7 +69,6 @@ class RuleTestCase(TestCase):
         self.assertEqual(rule.summary(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
-            'rule_type': 'surt',
             'surt': '(org,',
             'neg_surt': '',
             'date_start': now,
@@ -125,7 +88,6 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
-            'rule_type': 'surt',
             'surt': '(org,',
             'date_start': now.isoformat(),
             'date_end': now.isoformat(),
@@ -142,7 +104,6 @@ class RuleTestCase(TestCase):
         self.assertEqual(rule.full_values(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
-            'rule_type': 'surt',
             'surt': '(org,',
             'neg_surt': '',
             'date_start': now,
@@ -161,9 +122,8 @@ class RuleTestCase(TestCase):
     def test_str(self):
         rule = Rule(
             policy='block',
-            rule_type='surt',
             surt='(org,')
-        self.assertEqual(str(rule), 'BLOCK PLAYBACK SURT ((org,)')
+        self.assertEqual(str(rule), 'BLOCK PLAYBACK ((org,)')
 
 
 class RuleChangeTestCase(TestCase):
@@ -173,7 +133,6 @@ class RuleChangeTestCase(TestCase):
         self.rule = Rule()
         self.rule_data = {
             'policy': 'block',
-            'rule_type': 'surt',
             'surt': '(org,',
             'date_start': self.now.isoformat() + 'Z',
             'date_end': self.now.isoformat() + 'Z',
@@ -216,7 +175,6 @@ class RuleChangeTestCase(TestCase):
             change_type='c')
         change.populate({
             'policy': 'block',
-            'rule_type': 'surt-neg',
             'surt': '(org,',
             'date_start': self.now.isoformat(),
             'date_end': self.now.isoformat(),
@@ -238,7 +196,6 @@ class RuleChangeTestCase(TestCase):
             'comment': 'composed',
             'type': 'created',
             'policy': 'block',
-            'rule_type': 'surt-neg',
             'surt': '(org,',
             'neg_surt': '',
             'date_start': self.now,

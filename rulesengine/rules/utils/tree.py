@@ -9,8 +9,10 @@ def tree_for_surt(surt):
 
     E.g: http://(org,archive,)/somepage attempts to fetch the following rules:
 
+    * -
     * http://(
     * http://(org,
+    * http://(org,archive, # XXX TODO
     * http://(org,archive,)
     * http://(org,archive,)/somepage
 
@@ -31,12 +33,8 @@ def tree_for_surt(surt):
             part = part[0:-1]
         tree_surts.append(part)
         surt_parts.pop()
-    return Rule.objects.filter(surt__in=tree_surts)
-    # return Rule.objects.filter(
-    #     surt__in=tree_surts,
-    #     Q(rule_type='surt')
-    #     | (Q(rule_type='surt_neg') & ~Q(neg_surt=str(surt)))
-    #     | (Q(rule_type='daterange') & Q()))
+    return Rule.objects.filter(
+        Q(surt__in=tree_surts) | Q(surt__startswith=surt))
 
 
 # SURT always Used

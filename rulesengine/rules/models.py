@@ -11,25 +11,18 @@ class RuleBase(models.Model):
         ('message', 'Block playback with message'),
         ('allow', 'Allow playback'),
         ('auth', 'Require auth for playback'),
-        ('rewrite', 'Rewrite playback'),
-    )
-
-    RULE_TYPES = (
-        ('surt', 'SURT'),
-        ('surt-neg', 'SURT negation'),
-        ('regex', 'regular expression'),
-        ('daterange', 'date range'),
-        ('warcname', 'WARC name (or regex)'),
-        ('collection', 'collection'),
-        ('partner', 'partner'),
+        ('rewrite-all', 'Rewrite playback for the entire page'),
+        ('rewrite-js', 'Rewrite playback JavaScript'),
+        ('rewrite-headers', 'Rewrite playback headers'),
     )
 
     policy = models.CharField(max_length=10, choices=POLICY_CHOICES)
-    rule_type = models.CharField(max_length=10, choices=RULE_TYPES)
 
     # Used for surt and surt-neg rule types
     surt = models.TextField()
     neg_surt = models.TextField(blank=True)
+
+    # SURT Negation: rewrite everything but a given path
 
     # Used for daterange rule types
     date_start = models.DateTimeField(null=True)
@@ -53,18 +46,6 @@ class RuleBase(models.Model):
     class Meta:
         abstract = True
 
-    def get_pertinent_field(self):
-        actions = {
-            'surt': lambda x: x.surt,
-            'surt-neg': lambda x: (x.surt, x.neg_surt),
-            'regex': lambda x: x.surt,
-            'daterange': lambda x: (x.date_start, x.date_end),
-            'warcname': lambda x: x.warc_match,
-            'collection': lambda x: x.collection,
-            'partner': lambda x: x.partner,
-        }
-        return actions[self.rule_type](self)
-
     def populate(self, values):
         """Given an object á là `summary`, populate the given fields.
 
@@ -73,7 +54,6 @@ class RuleBase(models.Model):
             model.
         """
         self.policy = values['policy']
-        self.rule_type = values['rule_type']
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
         self.date_start = parse_date(values.get('date_start'))
@@ -97,7 +77,6 @@ class Rule(RuleBase):
         return {
             'id': self.id,
             'policy': self.policy,
-            'rule_type': self.rule_type,
             'surt': self.surt,
             'neg_surt': self.neg_surt,
             'date_start': self.date_start,
@@ -128,10 +107,9 @@ class Rule(RuleBase):
         Returns:
         The policy type, the rule type, and the pertinent field
         """
-        return '{} {} ({})'.format(
+        return '{} ({})'.format(
             self.get_policy_display().upper(),
-            self.get_rule_type_display(),
-            self.get_pertinent_field())
+            self.surt)
 
     class Meta:
         indexes = [
@@ -187,7 +165,6 @@ class RuleChange(RuleBase):
             'comment': self.change_comment,
             'type': self.get_change_type_display(),
             'policy': self.policy,
-            'rule_type': self.rule_type,
             'surt': self.surt,
             'neg_surt': self.neg_surt,
             'date_start': self.date_start,
