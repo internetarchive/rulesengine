@@ -28,7 +28,8 @@ lint: venv
 
 venv:
 	virtualenv --python `which python3` venv
-	venv/bin/pip install --index-url https://devpi.archive.org/ait/packages/+simple/ -r requirements.txt
+	venv/bin/pip install git+https://github.com/dignio/ultrajson.git
+	venv/bin/pip install -r requirements.txt
 
 .PHONY: clean
 clean:
