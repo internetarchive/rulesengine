@@ -6,7 +6,12 @@ rulesengine/db.sqlite3:
 	cd rulesengine && ../venv/bin/python manage.py migrate
 
 .PHONY: check
-check: test lint
+check: lint test benchmark
+
+.PHONY: benchmark
+benchmark: venv
+	cd rulesengine; \
+	../venv/bin/python manage.py benchmark
 
 .PHONY: test
 test: runtests coveragereport
