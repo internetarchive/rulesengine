@@ -34,14 +34,16 @@ class RuleBase(models.Model):
     warc_match = models.TextField(blank=True)
 
     # Rewrite rules
+    js_modifications = models.TextField(blank=True)
     rewrite_from = models.TextField(blank=True)
     rewrite_to = models.TextField(blank=True)
 
     # Metadata
-    who = models.CharField(max_length=50)
+    who = models.CharField(max_length=50, blank=True)
     private_comment = models.TextField(blank=True)
     public_comment = models.TextField(blank=True)
     enabled = models.BooleanField()
+    exact_match = models.BooleanField()
 
     class Meta:
         abstract = True
