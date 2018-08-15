@@ -22,7 +22,7 @@ class Command(BaseCommand):
         result['tree_for_surt - http://(com,example)/foo'] = t.timeit(
             number=1000)
 
-        print('{:>50}  {}'.format('Test (1000x)', 'Avg. execution time (sec)'))
+        print('{:>50}  {}'.format('Test (1000x)', 'Avg. execution time (ms)'))
         print('-' * 80)
         for k, v in result.items():
             print("{:>50}  {}".format(k, result[k]))
