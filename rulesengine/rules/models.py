@@ -40,10 +40,6 @@ class RuleBase(models.Model):
     rewrite_to = models.TextField(blank=True)
 
     # Metadata
-<<<<<<< Updated upstream
-    who = models.CharField(max_length=50)
-=======
->>>>>>> Stashed changes
     private_comment = models.TextField(blank=True)
     public_comment = models.TextField(blank=True)
     enabled = models.BooleanField()
