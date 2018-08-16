@@ -18,17 +18,19 @@ class RuleBase(models.Model):
 
     policy = models.CharField(max_length=10, choices=POLICY_CHOICES)
 
-    # Used for surt and surt-neg rule types
+    # Used for surt and surt-neg rules
     surt = models.TextField()
+    # SURT Negation example: rewrite everything but a given path
     neg_surt = models.TextField(blank=True)
 
-    # SURT Negation: rewrite everything but a given path
+    # Used for daterange rules
+    capture_date_start = models.DateTimeField(null=True)
+    capture_date_end = models.DateTimeField(null=True)
+    retrieve_date_start = models.DateTimeField(null=True)
+    retrieve_date_end = models.DateTimeField(null=True)
+    seconds_since_capture = models.IntegerField(null=True)
 
-    # Used for daterange rule types
-    date_start = models.DateTimeField(null=True)
-    date_end = models.DateTimeField(null=True)
-
-    # Used for WARC-related rule types
+    # Used for WARC-related rules
     collection = models.TextField(blank=True)
     partner = models.TextField(blank=True)
     warc_match = models.TextField(blank=True)
@@ -38,7 +40,10 @@ class RuleBase(models.Model):
     rewrite_to = models.TextField(blank=True)
 
     # Metadata
+<<<<<<< Updated upstream
     who = models.CharField(max_length=50)
+=======
+>>>>>>> Stashed changes
     private_comment = models.TextField(blank=True)
     public_comment = models.TextField(blank=True)
     enabled = models.BooleanField()
