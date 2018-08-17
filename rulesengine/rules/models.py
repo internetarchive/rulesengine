@@ -57,14 +57,17 @@ class RuleBase(models.Model):
         self.policy = values['policy']
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
-        self.date_start = parse_date(values.get('date_start'))
-        self.date_end = parse_date(values.get('date_end'))
+        self.capture_date_start = parse_date(values.get('capture_date_start'))
+        self.capture_date_end = parse_date(values.get('capture_date_end'))
+        self.retrieve_date_start = parse_date(
+            values.get('retrieve_date_start'))
+        self.retrieve_date_end = parse_date(values.get('retrieve_date_end'))
+        self.seconds_since_capture = values.get('seconds_since_capture')
         self.collection = values.get('collection', '')
         self.partner = values.get('partner', '')
         self.warc_match = values.get('warc_match', '')
         self.rewrite_from = values.get('rewrite_from', '')
         self.rewrite_to = values.get('rewrite_to', '')
-        self.who = values['who']
         self.public_comment = values.get('public_comment', '')
         self.private_comment = values.get('private_comment', '')
         self.enabled = values['enabled'] == 'true'
@@ -80,14 +83,16 @@ class Rule(RuleBase):
             'policy': self.policy,
             'surt': self.surt,
             'neg_surt': self.neg_surt,
-            'date_start': self.date_start,
-            'date_end': self.date_end,
+            'capture_date_start': self.capture_date_start,
+            'capture_date_end': self.capture_date_end,
+            'retrieve_date_start': self.retrieve_date_start,
+            'retrieve_date_end': self.retrieve_date_end,
+            'seconds_since_capture': self.seconds_since_capture,
             'collection': self.collection,
             'partner': self.partner,
             'warc_match': self.warc_match,
             'rewrite_from': self.rewrite_from,
             'rewrite_to': self.rewrite_to,
-            'who': self.who,
             'public_comment': self.public_comment,
             'enabled': self.enabled,
         }
@@ -168,14 +173,16 @@ class RuleChange(RuleBase):
             'policy': self.policy,
             'surt': self.surt,
             'neg_surt': self.neg_surt,
-            'date_start': self.date_start,
-            'date_end': self.date_end,
+            'capture_date_start': self.capture_date_start,
+            'capture_date_end': self.capture_date_end,
+            'retrieve_date_start': self.retrieve_date_start,
+            'retrieve_date_end': self.retrieve_date_end,
+            'seconds_since_capture': self.seconds_since_capture,
             'collection': self.collection,
             'partner': self.partner,
             'warc_match': self.warc_match,
             'rewrite_from': self.rewrite_from,
             'rewrite_to': self.rewrite_to,
-            'who': self.who,
             'public_comment': self.public_comment,
             'private_comment': self.private_comment,
             'enabled': self.enabled,
