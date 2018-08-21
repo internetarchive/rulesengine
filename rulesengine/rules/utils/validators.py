@@ -3,6 +3,7 @@ class RuleValidationException(Exception):
 
 
 def validate_rule_json(rule_json):
+    # TODO use jsonschema
     REQUIRED_FIELDS = [
         'policy',
         'surt',
