@@ -11,9 +11,21 @@ from rules.models import Rule
 def tree(surt, neg_surt=None, collection=None, partner=None,
          warc_match=None, capture_date=None):
     """Retrieves rules for all parts of the surt up to and including the
-    provided surt.
+    provided surt.[0]
 
-    E.g: http://(org,archive,)/somepage attempts to fetch the following rules:
+    Arguments:
+    surt -- The SURT to find the tree of rules for.
+    neg_surt -- A SURT to not match.[1]
+    collection -- Match against a partner's collection.
+    partner -- Match against a partner.
+    warc_match -- Match against a WARC filename (regex allowed).
+    capture_date -- The date of the requested capture.
+
+    Returns:
+    A QuerySet of rules that match each level of the tree.
+
+    [0] E.g: http://(org,archive,)/somepage attempts to fetch the following
+    rules:
 
     * -
     * http://(
@@ -21,12 +33,7 @@ def tree(surt, neg_surt=None, collection=None, partner=None,
     * http://(org,archive,
     * http://(org,archive,)
     * http://(org,archive,)/somepage
-
-    Arguments:
-    surt -- The SURT to find the tree of rules for.
-
-    Returns:
-    A QuerySet of rules that match each level of the tree.
+    [1] Not currently used, but may be in the future.
     """
     surt_parts = surt.parts
     tree_surts = []

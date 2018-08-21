@@ -136,9 +136,3 @@ def rules_for_request(request):
         warc_match=warc_match,
         capture_date=capture_date)
     return success([rule.summary() for rule in tree])
-
-# Stub out how rules apply
-# Indexes
-# Performance vs current
-#   Plus how to improve
-# Lifecycle
