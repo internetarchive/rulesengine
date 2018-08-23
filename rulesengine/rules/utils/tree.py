@@ -24,7 +24,7 @@ def tree(surt, neg_surt=None, collection=None, partner=None,
     Returns:
     A QuerySet of rules that match each level of the tree.
 
-    [0] E.g: http://(org,archive,)/somepage attempts to fetch the following
+    [0] E.g: http://(org,archive,)/some/page attempts to fetch the following
     rules:
 
     * -
@@ -32,7 +32,8 @@ def tree(surt, neg_surt=None, collection=None, partner=None,
     * http://(org,
     * http://(org,archive,
     * http://(org,archive,)
-    * http://(org,archive,)/somepage
+    * http://(org,archive,)/some
+    * http://(org,archive,)/some/page
     [1] Not currently used, but may be in the future.
     """
     surt_parts = surt.parts

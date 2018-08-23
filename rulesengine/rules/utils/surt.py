@@ -64,8 +64,9 @@ class Surt(object):
             self.hash = ''
 
         # Split the path into its component parts.
-        if self.path:
+        if self.path != '':
             self.path_parts = self.path.split('/')
+            # Splitting on / will leave an empty string as the first entry.
             if self.path_parts[0] == '':
                 self.path_parts = self.path_parts[1:]
         else:
