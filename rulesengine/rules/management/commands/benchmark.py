@@ -3,8 +3,8 @@ import timeit
 from django.core.management.base import BaseCommand
 
 from rules.utils.surt import Surt
-from rules.utils.tree import tree_for_surt
-from rules.views import tree
+from rules.utils.tree import tree as tree_func
+from rules.views import tree_for_surt as tree_view
 
 
 class Command(BaseCommand):
@@ -14,12 +14,12 @@ class Command(BaseCommand):
         result = {}
 
         t = timeit.Timer(
-            lambda: tree(None, 'http://(com,example)/foo'))
+            lambda: tree_view(None, 'http://(com,example)/foo'))
         result['tree view - http://(com,example)/foo'] = t.timeit(
             number=1000)
         t = timeit.Timer(
-            lambda: tree_for_surt(Surt('http://(com,example)/foo')))
-        result['tree_for_surt - http://(com,example)/foo'] = t.timeit(
+            lambda: tree_func(Surt('http://(com,example)/foo')))
+        result['tree function - http://(com,example)/foo'] = t.timeit(
             number=1000)
 
         print('{:>50}  {}'.format('Test (1000x)', 'Avg. execution time (ms)'))

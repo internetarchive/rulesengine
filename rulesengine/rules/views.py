@@ -1,3 +1,4 @@
+from dateutil.parser import isoparse as parse_date
 import json
 
 from django.views import View
@@ -12,7 +13,7 @@ from .utils.json import (
     success,
 )
 from .utils.surt import Surt
-from .utils.tree import tree_for_surt
+from .utils.tree import tree
 from .utils.validators import (
     RuleValidationException,
     validate_rule_json,
@@ -96,45 +97,42 @@ class RuleView(SingleObjectMixin, View):
         return success({})
 
 
-def tree(request, surt_string):
+def tree_for_surt(request, surt_string):
     """Fetches a tree of rules for a given surt."""
     surt = Surt(surt_string)
-    tree = [rule.summary() for rule in tree_for_surt(surt)]
-    return success(tree)
+    result = [rule.summary() for rule in tree(surt)]
+    return success(result)
 
 
 def rules_for_request(request):
-    """Returns all rules that would apply to a warc, surt, and capture date.
+    """Returns all rules that would apply to a warc and surt, and capture date.
 
-    capture-date should be in the format yyyymmddhhmm"""
-    surt = request.GET.get('surt')
-    warc = request.GET.get('warc')
-    capture_date = int(request.GET.get('capture-date'))  # XXX try/except
-    if surt is None or warc is None or capture_date is None:
-        return error('surt, warc, and capture-date query string params'
+    Query string parameters
+    surt -- The SURT to look up.
+    neg-surt -- A SURT negation (e.g: surt does not match) to take
+        into account.
+    collection -- A collection name to match against.
+    partner -- A partner Id to match against.
+    warc-match -- The WARC filename (or regex thereof) for matching.
+    capture-date -- The date the playback data was captured (ISO 8601)."""
+    surt_qs = request.GET.get('surt')
+    warc_match = request.GET.get('warc-match')
+    capture_date_qs = request.GET.get('capture-date')
+    if surt_qs is None or warc_match is None or capture_date_qs is None:
+        return error('surt, warc-match, and capture-date query string params'
                      ' are all required', {})
-    surt = Surt(surt)
-    tree = tree_for_surt(surt)
-    warc_parts = warc.split('-')  # XXX validate warc name
-    warc_date = int(warc_parts[4][0:-5])  # Parse an int out of date minus ms
-    applicable_rules = []
-    for rule in tree:
-        # XXX Compare using datetime types rather than ints
-        start = int(rule.capture_start.strftime('%Y%m%d%H%M'))
-        end = int(rule.capture_end.strftime('%Y%m%d%H%M'))
-        if ((warc_date > start and warc_date < end) and
-                (capture_date > start and capture_date < end)):
-            applicable_rules.append(rule)
-    # Here is where we would make a surface-level decision on the action to
-    # be taken (block, auth, allow, rewrite, etc). A point of optimization
-    # would be to use django to only select the rules matching the date range,
-    # but for now, we select the whole tree. Also, date comparisons would
-    # probably be faster than coercing to strings, then to ints, but I was
-    # running short on time.
-    return success([rule.summary() for rule in applicable_rules])
-
-# Stub out how rules apply
-# Indexes
-# Performance vs current
-#   Plus how to improve
-# Lifecycle
+    try:
+        capture_date = parse_date(capture_date_qs)
+    except ValueError as e:
+        return error(
+            'capture-date query string param must be '
+            'ISO 8601 format: {}'.format(str(e)), {})
+    surt = Surt(surt_qs)
+    tree = tree_for_surt(
+        surt,
+        neg_surt=request.GET.get('neg-surt'),
+        collection=request.GET.get('collection'),
+        partner=request.GET.get('partner'),
+        warc_match=warc_match,
+        capture_date=capture_date)
+    return success([rule.summary() for rule in tree])

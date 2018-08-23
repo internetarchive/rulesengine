@@ -2,6 +2,7 @@ VENV=venv
 COVERAGE=$(VENV)/bin/coverage
 PIP=$(VENV)/bin/pip
 PYTHON=$(VENV)/bin/python
+FLAKE8=$(VENV)/bin/flake8
 
 .PHONY: run
 run: venv rulesengine/db.sqlite3
@@ -31,7 +32,7 @@ coveragereport:
 
 .PHONY: lint
 lint: venv
-	venv/bin/flake8 rulesengine --exclude migrations,settings.py
+	$(FLAKE8) rulesengine --exclude migrations,settings.py
 
 rulesengine/db.sqlite3: venv
 	cd rulesengine; \
