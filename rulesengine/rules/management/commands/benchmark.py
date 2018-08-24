@@ -11,18 +11,18 @@ class Command(BaseCommand):
     help = 'Performs basic benchmarks against the application.'
 
     def handle(self, *args, **kwargs):
-        result = {}
+        self.stdout.write(
+            '{:>50}  {}'.format('Test (1000x)', 'Avg. execution time (ms)'))
+        self.stdout.write('-'*80)
 
         t = timeit.Timer(
-            lambda: tree_view(None, 'http://(com,example)/foo'))
-        result['tree view - http://(com,example)/foo'] = t.timeit(
-            number=1000)
-        t = timeit.Timer(
-            lambda: tree_func(Surt('http://(com,example)/foo')))
-        result['tree function - http://(com,example)/foo'] = t.timeit(
-            number=1000)
+            lambda: tree_view(None, 'http://(com,example0)/path'))
+        self.stdout.write('{:>50}  {}'.format(
+            'tree view - http://(com,example0)/path',
+            t.timeit(number=1000)))
 
-        print('{:>50}  {}'.format('Test (1000x)', 'Avg. execution time (ms)'))
-        print('-' * 80)
-        for k, v in result.items():
-            print("{:>50}  {}".format(k, result[k]))
+        t = timeit.Timer(
+            lambda: tree_func(Surt('http://(com,example0)/path')))
+        self.stdout.write('{:>50}  {}'.format(
+            'tree function - http://(com,example0)/path',
+            t.timeit(number=1000)))
