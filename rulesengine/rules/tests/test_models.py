@@ -21,10 +21,14 @@ class RuleBaseTestCase(TestCase):
             'policy': 'block',
             'surt': '(org,',
             'neg_surt': '(org,archive,',
-            'capture_date_start': now.isoformat(),
-            'capture_date_end': now.isoformat(),
-            'retrieve_date_start': now.isoformat(),
-            'retrieve_date_end': now.isoformat(),
+            'capture_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -33,7 +37,7 @@ class RuleBaseTestCase(TestCase):
             'rewrite_to': 'jupiter',
             'public_comment': 'initial creation',
             'private_comment': 'going roman',
-            'enabled': 'true',
+            'enabled': True,
         })
         self.assertEqual(base.policy, 'block')
         self.assertEqual(base.surt, '(org,')
@@ -66,7 +70,7 @@ class RuleBaseTestCase(TestCase):
             'rewrite_to': 'jupiter',
             'public_comment': 'initial creation',
             'private_comment': 'going roman',
-            'enabled': 'true',
+            'enabled': True,
         })
         self.assertEqual(base.capture_date_start, None)
         self.assertEqual(base.capture_date_end, None)
@@ -82,10 +86,14 @@ class RuleTestCase(TestCase):
         rule.populate({
             'policy': 'block',
             'surt': '(org,',
-            'capture_date_start': now.isoformat(),
-            'capture_date_end': now.isoformat(),
-            'retrieve_date_start': now.isoformat(),
-            'retrieve_date_end': now.isoformat(),
+            'capture_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -94,17 +102,20 @@ class RuleTestCase(TestCase):
             'rewrite_to': 'jupiter',
             'public_comment': 'initial creation',
             'private_comment': 'going roman',
-            'enabled': 'true',
+            'enabled': True,
         })
         self.assertEqual(rule.summary(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
             'surt': '(org,',
-            'neg_surt': '',
-            'capture_date_start': now,
-            'capture_date_end': now,
-            'retrieve_date_start': now,
-            'retrieve_date_end': now,
+            'capture_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -121,10 +132,14 @@ class RuleTestCase(TestCase):
         rule.populate({
             'policy': 'block',
             'surt': '(org,',
-            'capture_date_start': now.isoformat(),
-            'capture_date_end': now.isoformat(),
-            'retrieve_date_start': now.isoformat(),
-            'retrieve_date_end': now.isoformat(),
+            'capture_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -133,17 +148,20 @@ class RuleTestCase(TestCase):
             'rewrite_to': 'jupiter',
             'public_comment': 'initial creation',
             'private_comment': 'going roman',
-            'enabled': 'true',
+            'enabled': True,
         })
         self.assertEqual(rule.full_values(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
             'surt': '(org,',
-            'neg_surt': '',
-            'capture_date_start': now,
-            'capture_date_end': now,
-            'retrieve_date_start': now,
-            'retrieve_date_end': now,
+            'capture_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -161,10 +179,14 @@ class RuleTestCase(TestCase):
         rule.populate({
             'policy': 'block',
             'surt': '(org,',
-            'capture_date_start': now.isoformat(),
-            'capture_date_end': now.isoformat(),
-            'retrieve_date_start': now.isoformat(),
-            'retrieve_date_end': now.isoformat(),
+            'capture_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': now.isoformat(),
+                'end': now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -173,7 +195,7 @@ class RuleTestCase(TestCase):
             'rewrite_to': 'jupiter',
             'public_comment': 'initial creation',
             'private_comment': 'going roman',
-            'enabled': 'true',
+            'enabled': True,
         })
         rule.save()
         last_change = RuleChange.objects.all().order_by('-pk')[0]
@@ -194,15 +216,19 @@ class RuleTestCase(TestCase):
 class RuleChangeTestCase(TestCase):
 
     def setUp(self):
-        self.now = datetime.now()
+        self.now = datetime.now(timezone.utc)
         self.rule = Rule()
         self.rule_data = {
             'policy': 'block',
             'surt': '(org,',
-            'capture_date_start': self.now.isoformat() + 'Z',
-            'capture_date_end': self.now.isoformat() + 'Z',
-            'retrieve_date_start': self.now.isoformat() + 'Z',
-            'retrieve_date_end': self.now.isoformat() + 'Z',
+            'capture_date': {
+                'start': self.now.isoformat(),
+                'end': self.now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': self.now.isoformat(),
+                'end': self.now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -211,7 +237,7 @@ class RuleChangeTestCase(TestCase):
             'rewrite_to': 'jupiter',
             'public_comment': 'initial creation',
             'private_comment': 'going roman',
-            'enabled': 'true',
+            'enabled': True,
         }
         self.rule.populate(self.rule_data)
         self.rule.save()
@@ -223,7 +249,7 @@ class RuleChangeTestCase(TestCase):
             change_user='Gustav Holst',
             change_comment='composed',
             change_type='c')
-        self.assertEqual(change.summary(), {
+        self.assertEqual(change.change_summary(), {
             'id': None,
             'rule_id': self.rule.id,
             'date': self.now,
@@ -243,34 +269,14 @@ class RuleChangeTestCase(TestCase):
         change.populate({
             'policy': 'block',
             'surt': '(org,',
-            'capture_date_start': self.now.isoformat(),
-            'capture_date_end': self.now.isoformat(),
-            'retrieve_date_start': self.now.isoformat(),
-            'retrieve_date_end': self.now.isoformat(),
-            'seconds_since_capture': 256,
-            'collection': 'Planets',
-            'partner': 'Holst',
-            'warc_match': 'jupiter',
-            'rewrite_from': 'zeus',
-            'rewrite_to': 'jupiter',
-            'public_comment': 'initial creation',
-            'private_comment': 'going roman',
-            'enabled': 'true',
-        })
-        self.assertEqual(change.full_change(), {
-            'id': None,
-            'rule_id': self.rule.id,
-            'date': self.now,
-            'user': 'Gustav Holst',
-            'comment': 'composed',
-            'type': 'created',
-            'policy': 'block',
-            'surt': '(org,',
-            'neg_surt': '',
-            'capture_date_start': self.now,
-            'capture_date_end': self.now,
-            'retrieve_date_start': self.now,
-            'retrieve_date_end': self.now,
+            'capture_date': {
+                'start': self.now.isoformat(),
+                'end': self.now.isoformat(),
+            },
+            'retrieve_date': {
+                'start': self.now.isoformat(),
+                'end': self.now.isoformat(),
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -280,4 +286,34 @@ class RuleChangeTestCase(TestCase):
             'public_comment': 'initial creation',
             'private_comment': 'going roman',
             'enabled': True,
+        })
+        self.assertEqual(change.full_change(), {
+            'id': None,
+            'rule_id': self.rule.id,
+            'date': self.now,
+            'user': 'Gustav Holst',
+            'comment': 'composed',
+            'type': 'created',
+            'rule': {
+                'id': None,
+                'policy': 'block',
+                'surt': '(org,',
+                'capture_date': {
+                    'start': self.now.isoformat(),
+                    'end': self.now.isoformat(),
+                },
+                'retrieve_date': {
+                    'start': self.now.isoformat(),
+                    'end': self.now.isoformat(),
+                },
+                'seconds_since_capture': 256,
+                'collection': 'Planets',
+                'partner': 'Holst',
+                'warc_match': 'jupiter',
+                'rewrite_from': 'zeus',
+                'rewrite_to': 'jupiter',
+                'public_comment': 'initial creation',
+                'private_comment': 'going roman',
+                'enabled': True,
+            },
         })

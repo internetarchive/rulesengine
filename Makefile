@@ -22,7 +22,7 @@ test: runtests coveragereport
 .PHONY: runtests
 runtests: venv
 	cd rulesengine; \
-	../$(COVERAGE) run --source=rules --omit="*/migrations/*,*/admin.py,*/apps.py" ./manage.py test
+	../$(COVERAGE) run --source=rules --omit="*/migrations/*,*/admin.py,*/apps.py,*/test_*" ./manage.py test
 
 .PHONY: coveragereport
 coveragereport:
