@@ -1,3 +1,4 @@
+from datetime import datetime
 from dateutil.parser import parse as parse_date
 
 from django.db import models
@@ -58,17 +59,29 @@ class RuleBase(models.Model):
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
         if values.get('capture_date_start'):
-            self.capture_date_start = parse_date(
-                values.get('capture_date_start'))
+            if isinstance(values['capture_date_start'], datetime):
+                self.capture_date_start = values['capture_date_start']
+            else:
+                self.capture_date_start = parse_date(
+                    values['capture_date_start'])
         if values.get('capture_date_end'):
-            self.capture_date_end = parse_date(
-                values.get('capture_date_end'))
+            if isinstance(values['capture_date_end'], datetime):
+                self.capture_date_end = values['capture_date_end']
+            else:
+                self.capture_date_end = parse_date(
+                    values['capture_date_end'])
         if values.get('retrieve_date_start'):
-            self.retrieve_date_start = parse_date(
-                values.get('retrieve_date_start'))
+            if isinstance(values['retrieve_date_start'], datetime):
+                self.retrieve_date_start = values['retrieve_date_start']
+            else:
+                self.retrieve_date_start = parse_date(
+                    values['retrieve_date_start'])
         if values.get('retrieve_date_end'):
-            self.retrieve_date_end = parse_date(
-                values.get('capture_date_end'))
+            if isinstance(values['retrieve_date_end'], datetime):
+                self.retrieve_date_end = values['retrieve_date_end']
+            else:
+                self.retrieve_date_end = parse_date(
+                    values['retrieve_date_end'])
         self.seconds_since_capture = values.get('seconds_since_capture')
         self.collection = values.get('collection', '')
         self.partner = values.get('partner', '')
