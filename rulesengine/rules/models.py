@@ -80,6 +80,7 @@ class RuleBase(models.Model):
             'id': self.id,
             'policy': self.policy,
             'surt': self.surt,
+            'enabled': self.enabled,
         }
         if self.neg_surt:
             values['neg_surt'] = self.neg_surt
@@ -99,8 +100,6 @@ class RuleBase(models.Model):
             values['public_comment'] = self.public_comment
         if include_private and self.private_comment:
             values['private_comment'] = self.private_comment
-        if self.enabled:
-            values['enabled'] = self.enabled
         if self.capture_date_start and self.capture_date_end:
             values['capture_date'] = {
                 'start': self.capture_date_start.isoformat(),
