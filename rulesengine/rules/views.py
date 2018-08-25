@@ -14,10 +14,7 @@ from .utils.json import (
 )
 from .utils.surt import Surt
 from .utils.tree import tree
-from .utils.validators import (
-    RuleValidationException,
-    validate_rule_json,
-)
+from .utils.validators import validate_rule_json
 
 
 class RulesView(View):
@@ -42,7 +39,7 @@ class RulesView(View):
             return error('unable to marshal json', str(e))
         try:
             validate_rule_json(new_rule)
-        except RuleValidationException as e:
+        except Exception as e:
             return error('error validating json', str(e))
         rule = Rule()
         rule.populate(new_rule)
@@ -69,7 +66,7 @@ class RuleView(SingleObjectMixin, View):
             return error('unable to marshal json', str(e))
         try:
             validate_rule_json(updates)
-        except RuleValidationException as e:
+        except Exception as e:
             return error('error validating json', str(e))
 
         # TODO this can take place in the save method on Rule, which would also

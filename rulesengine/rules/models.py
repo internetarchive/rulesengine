@@ -1,21 +1,15 @@
-from datetime import datetime
 from dateutil.parser import parse as parse_date
 
 from django.db import models
 
+from rules.utils.validators import (
+    POLICY_CHOICES,
+    validate_rule_json,
+)
+
 
 class RuleBase(models.Model):
     """Abstract model representing the base fields for rules and changes."""
-
-    POLICY_CHOICES = (
-        ('block', 'Block playback'),
-        ('message', 'Block playback with message'),
-        ('allow', 'Allow playback'),
-        ('auth', 'Require auth for playback'),
-        ('rewrite-all', 'Rewrite playback for the entire page'),
-        ('rewrite-js', 'Rewrite playback JavaScript'),
-        ('rewrite-headers', 'Rewrite playback headers'),
-    )
 
     policy = models.CharField(max_length=10, choices=POLICY_CHOICES)
 
@@ -55,33 +49,20 @@ class RuleBase(models.Model):
         values -- A Python dict containing keys named after the fields in the
             model.
         """
+        validate_rule_json(values)
         self.policy = values['policy']
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
-        if values.get('capture_date_start'):
-            if isinstance(values['capture_date_start'], datetime):
-                self.capture_date_start = values['capture_date_start']
-            else:
-                self.capture_date_start = parse_date(
-                    values['capture_date_start'])
-        if values.get('capture_date_end'):
-            if isinstance(values['capture_date_end'], datetime):
-                self.capture_date_end = values['capture_date_end']
-            else:
-                self.capture_date_end = parse_date(
-                    values['capture_date_end'])
-        if values.get('retrieve_date_start'):
-            if isinstance(values['retrieve_date_start'], datetime):
-                self.retrieve_date_start = values['retrieve_date_start']
-            else:
-                self.retrieve_date_start = parse_date(
-                    values['retrieve_date_start'])
-        if values.get('retrieve_date_end'):
-            if isinstance(values['retrieve_date_end'], datetime):
-                self.retrieve_date_end = values['retrieve_date_end']
-            else:
-                self.retrieve_date_end = parse_date(
-                    values['retrieve_date_end'])
+        if 'capture_date' in values:
+            self.capture_date_start = parse_date(
+                values['capture_date']['start'])
+            self.capture_date_end = parse_date(
+                values['capture_date']['end'])
+        if 'retrieve_date' in values:
+            self.retrieve_date_start = parse_date(
+                values['retrieve_date']['start'])
+            self.retrieve_date_end = parse_date(
+                values['retrieve_date']['end'])
         self.seconds_since_capture = values.get('seconds_since_capture')
         self.collection = values.get('collection', '')
         self.partner = values.get('partner', '')
@@ -90,32 +71,51 @@ class RuleBase(models.Model):
         self.rewrite_to = values.get('rewrite_to', '')
         self.public_comment = values.get('public_comment', '')
         self.private_comment = values.get('private_comment', '')
-        self.enabled = values['enabled'] == 'true'
+        if 'enabled' in values:
+            self.enabled = values['enabled']
+
+    def summary(self, include_private=False):
+        """Returns an object with publicly visible fields."""
+        values = {
+            'id': self.id,
+            'policy': self.policy,
+            'surt': self.surt,
+        }
+        if self.neg_surt:
+            values['neg_surt'] = self.neg_surt
+        if self.seconds_since_capture:
+            values['seconds_since_capture'] = self.seconds_since_capture
+        if self.collection:
+            values['collection'] = self.collection
+        if self.partner:
+            values['partner'] = self.partner
+        if self.warc_match:
+            values['warc_match'] = self.warc_match
+        if self.rewrite_from:
+            values['rewrite_from'] = self.rewrite_from
+        if self.rewrite_to:
+            values['rewrite_to'] = self.rewrite_to
+        if self.public_comment:
+            values['public_comment'] = self.public_comment
+        if include_private and self.private_comment:
+            values['private_comment'] = self.private_comment
+        if self.enabled:
+            values['enabled'] = self.enabled
+        if self.capture_date_start and self.capture_date_end:
+            values['capture_date'] = {
+                'start': self.capture_date_start.isoformat(),
+                'end': self.capture_date_end.isoformat(),
+            }
+        if self.retrieve_date_start and self.retrieve_date_end:
+            values['retrieve_date'] = {
+                'start': self.retrieve_date_start.isoformat(),
+                'end': self.retrieve_date_end.isoformat(),
+            }
+        return values
 
 
 class Rule(RuleBase):
     """Represents a rule for exclusion, inclusion, or modification."""
-
-    def summary(self):
-        """Returns an object with publicly visible fields."""
-        return {
-            'id': self.id,
-            'policy': self.policy,
-            'surt': self.surt,
-            'neg_surt': self.neg_surt,
-            'capture_date_start': self.capture_date_start,
-            'capture_date_end': self.capture_date_end,
-            'retrieve_date_start': self.retrieve_date_start,
-            'retrieve_date_end': self.retrieve_date_end,
-            'seconds_since_capture': self.seconds_since_capture,
-            'collection': self.collection,
-            'partner': self.partner,
-            'warc_match': self.warc_match,
-            'rewrite_from': self.rewrite_from,
-            'rewrite_to': self.rewrite_to,
-            'public_comment': self.public_comment,
-            'enabled': self.enabled,
-        }
 
     def full_values(self):
         """Get the summary of the rule plus the private comment.
@@ -123,9 +123,7 @@ class Rule(RuleBase):
         Returns:
         The full values of the rule.
         """
-        summary = self.summary()
-        summary['private_comment'] = self.private_comment
-        return summary
+        return self.summary(include_private=True)
 
     def __str__(self):
         """Get a string representation of the rule for the Django admin.
@@ -178,7 +176,7 @@ class RuleChange(RuleBase):
     change_comment = models.TextField(blank=True)
     change_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
-    def summary(self):
+    def change_summary(self):
         """Get a brief summary of the rule change.
 
         Returns:
@@ -199,27 +197,6 @@ class RuleChange(RuleBase):
         Returns:
         An object with the old rule fields and the change metadata.
         """
-        return {
-            'id': self.id,
-            'rule_id': self.rule.id,
-            'date': self.change_date,
-            'user': self.change_user,
-            'comment': self.change_comment,
-            'type': self.get_change_type_display(),
-            'policy': self.policy,
-            'surt': self.surt,
-            'neg_surt': self.neg_surt,
-            'capture_date_start': self.capture_date_start,
-            'capture_date_end': self.capture_date_end,
-            'retrieve_date_start': self.retrieve_date_start,
-            'retrieve_date_end': self.retrieve_date_end,
-            'seconds_since_capture': self.seconds_since_capture,
-            'collection': self.collection,
-            'partner': self.partner,
-            'warc_match': self.warc_match,
-            'rewrite_from': self.rewrite_from,
-            'rewrite_to': self.rewrite_to,
-            'public_comment': self.public_comment,
-            'private_comment': self.private_comment,
-            'enabled': self.enabled,
-        }
+        values = self.change_summary()
+        values['rule'] = self.summary(include_private=True)
+        return values

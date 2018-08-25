@@ -1,29 +1,80 @@
-class RuleValidationException(Exception):
-    pass
+from dateutil.parser import parse as parse_date
+import jsonschema
 
 
-def validate_rule_json(rule_json):
-    # TODO use jsonschema
-    REQUIRED_FIELDS = [
+POLICY_CHOICES = (
+    ('block', 'Block playback'),
+    ('message', 'Block playback with message'),
+    ('allow', 'Allow playback'),
+    ('auth', 'Require auth for playback'),
+    ('rewrite-all', 'Rewrite playback for the entire page'),
+    ('rewrite-js', 'Rewrite playback JavaScript'),
+    ('rewrite-headers', 'Rewrite playback headers'),
+)
+
+SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'policy': {'enum': [choice[0] for choice in POLICY_CHOICES]},
+        'surt': {'type': 'string'},
+        'neg_surt': {'type': 'string'},
+        'capture_date': {
+            'type': 'object',
+            'properties': {
+                'start': {'type': 'string'},
+                'end': {'type': 'string'},
+            },
+            'required': [
+                'start',
+                'end',
+            ]
+        },
+        'retrieve_date': {
+            'type': 'object',
+            'properties': {
+                'start': {'type': 'string'},
+                'end': {'type': 'string'},
+            },
+            'required': [
+                'start',
+                'end',
+            ]
+        },
+        'seconds_since_capture': {'type': 'integer'},
+        'collection': {'type': 'string'},
+        'partner': {'type': 'string'},
+        'warc_match': {'type': 'string'},
+        'rewrite_from': {'type': 'string'},
+        'rewrite_to': {'type': 'string'},
+        'private_comment': {'type': 'string'},
+        'public_comment': {'type': 'string'},
+        'enabled': {'type': 'boolean'},
+    },
+    'required': [
         'policy',
         'surt',
-        'capture_start',
-        'capture_end',
-        'retrieval_start',
-        'retrieval_end',
-        'seconds_since_capture',
-        'who',
-        'enabled',
     ]
-    # OPTIONAL_FIELDS = [
-    #     'private_comment',
-    #     'public_comment',
-    # ]
+}
 
-    missing_fields = []
-    for field in REQUIRED_FIELDS:
-        if field not in rule_json:
-            missing_fields.append(field)
-    if len(missing_fields) != 0:
-        raise RuleValidationException(
-            "Required fields missing: {}".format(', '.join(missing_fields)))
+
+def validate_rule_json(input):
+    """Validate incoming JSON against a schema."""
+    jsonschema.validate(input, SCHEMA)
+    if 'capture_date' in input:
+        try:
+            parse_date(input['capture_date']['start'])
+        except ValueError as e:
+            raise ValueError(('capture start date', e))
+        try:
+            parse_date(input['capture_date']['end'])
+        except ValueError as e:
+            raise ValueError(('capture end date', e))
+    if 'retrieve_date' in input:
+        try:
+            parse_date(input['retrieve_date']['start'])
+        except ValueError as e:
+            raise ValueError(('retrieve start date', e))
+        try:
+            parse_date(input['retrieve_date']['end'])
+        except ValueError as e:
+            raise ValueError(('retrieve end date', e))
