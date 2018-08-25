@@ -1,3 +1,4 @@
+from datetime import datetime
 from dateutil.parser import parse as parse_date
 
 from django.db import models
@@ -42,7 +43,7 @@ class RuleBase(models.Model):
     # Metadata
     private_comment = models.TextField(blank=True)
     public_comment = models.TextField(blank=True)
-    enabled = models.BooleanField()
+    enabled = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
@@ -57,11 +58,30 @@ class RuleBase(models.Model):
         self.policy = values['policy']
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
-        self.capture_date_start = parse_date(values.get('capture_date_start'))
-        self.capture_date_end = parse_date(values.get('capture_date_end'))
-        self.retrieve_date_start = parse_date(
-            values.get('retrieve_date_start'))
-        self.retrieve_date_end = parse_date(values.get('retrieve_date_end'))
+        if values.get('capture_date_start'):
+            if isinstance(values['capture_date_start'], datetime):
+                self.capture_date_start = values['capture_date_start']
+            else:
+                self.capture_date_start = parse_date(
+                    values['capture_date_start'])
+        if values.get('capture_date_end'):
+            if isinstance(values['capture_date_end'], datetime):
+                self.capture_date_end = values['capture_date_end']
+            else:
+                self.capture_date_end = parse_date(
+                    values['capture_date_end'])
+        if values.get('retrieve_date_start'):
+            if isinstance(values['retrieve_date_start'], datetime):
+                self.retrieve_date_start = values['retrieve_date_start']
+            else:
+                self.retrieve_date_start = parse_date(
+                    values['retrieve_date_start'])
+        if values.get('retrieve_date_end'):
+            if isinstance(values['retrieve_date_end'], datetime):
+                self.retrieve_date_end = values['retrieve_date_end']
+            else:
+                self.retrieve_date_end = parse_date(
+                    values['retrieve_date_end'])
         self.seconds_since_capture = values.get('seconds_since_capture')
         self.collection = values.get('collection', '')
         self.partner = values.get('partner', '')
@@ -117,6 +137,23 @@ class Rule(RuleBase):
             self.get_policy_display().upper(),
             self.surt)
 
+    def save(self, *args, **kwargs):
+        """Create a RuleChange entry on save."""
+        change = RuleChange(
+            change_user=kwargs.get('user', ''),
+            change_comment=kwargs.get('comment', ''))
+        if self.pk is None:
+            change.change_type = 'c'
+            change.surt = self.surt
+            change.policy = self.policy
+        else:
+            change.change_type = 'u'
+            existing = Rule.objects.get(pk=self.pk)
+            change.populate(existing.full_values())
+        super().save(*args, **kwargs)
+        change.rule = self
+        change.save()
+
     class Meta:
         indexes = [
             models.Index(fields=['surt'])
@@ -131,15 +168,14 @@ class RuleChange(RuleBase):
     TYPE_CHOICES = (
         ('c', 'created'),
         ('u', 'updated'),
-        ('d', 'deleted'),
     )
     rule = models.ForeignKey(
         Rule,
         on_delete=models.CASCADE,
         related_name='rule_change')
     change_date = models.DateTimeField(auto_now=True)
-    change_user = models.TextField()
-    change_comment = models.TextField()
+    change_user = models.TextField(blank=True)
+    change_comment = models.TextField(blank=True)
     change_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
     def summary(self):

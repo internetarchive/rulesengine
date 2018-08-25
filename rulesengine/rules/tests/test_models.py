@@ -1,4 +1,7 @@
-from datetime import datetime
+from datetime import (
+    datetime,
+    timezone,
+)
 
 from django.test import TestCase
 
@@ -48,6 +51,27 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.public_comment, 'initial creation')
         self.assertEqual(base.private_comment, 'going roman')
         self.assertEqual(base.enabled, True)
+
+    def test_populate_no_dates(self):
+        base = RuleBase()
+        base.populate({
+            'policy': 'block',
+            'surt': '(org,',
+            'neg_surt': '(org,archive,',
+            'seconds_since_capture': 256,
+            'collection': 'Planets',
+            'partner': 'Holst',
+            'warc_match': 'jupiter',
+            'rewrite_from': 'zeus',
+            'rewrite_to': 'jupiter',
+            'public_comment': 'initial creation',
+            'private_comment': 'going roman',
+            'enabled': 'true',
+        })
+        self.assertEqual(base.capture_date_start, None)
+        self.assertEqual(base.capture_date_end, None)
+        self.assertEqual(base.retrieve_date_start, None)
+        self.assertEqual(base.retrieve_date_end, None)
 
 
 class RuleTestCase(TestCase):
@@ -130,6 +154,35 @@ class RuleTestCase(TestCase):
             'private_comment': 'going roman',
             'enabled': True,
         })
+
+    def test_save_adds_rule_change(self):
+        now = datetime.now(timezone.utc)
+        rule = Rule()
+        rule.populate({
+            'policy': 'block',
+            'surt': '(org,',
+            'capture_date_start': now.isoformat(),
+            'capture_date_end': now.isoformat(),
+            'retrieve_date_start': now.isoformat(),
+            'retrieve_date_end': now.isoformat(),
+            'seconds_since_capture': 256,
+            'collection': 'Planets',
+            'partner': 'Holst',
+            'warc_match': 'jupiter',
+            'rewrite_from': 'zeus',
+            'rewrite_to': 'jupiter',
+            'public_comment': 'initial creation',
+            'private_comment': 'going roman',
+            'enabled': 'true',
+        })
+        rule.save()
+        last_change = RuleChange.objects.all().order_by('-pk')[0]
+        self.assertEqual(last_change.change_type, 'c')
+        rule.policy = 'allow'
+        rule.save()
+        last_change = RuleChange.objects.all().order_by('-pk')[0]
+        self.assertEqual(last_change.change_type, 'u')
+        self.assertEqual(last_change.policy, 'block')
 
     def test_str(self):
         rule = Rule(

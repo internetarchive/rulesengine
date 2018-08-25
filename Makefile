@@ -36,7 +36,8 @@ lint: venv
 
 rulesengine/db.sqlite3: venv
 	cd rulesengine; \
-	../$(PYTHON) manage.py migrate
+	../$(PYTHON) manage.py migrate; \
+	../$(PYTHON) manage.py loaddata rules/fixtures/*
 
 venv:
 	virtualenv --python `which python3` venv

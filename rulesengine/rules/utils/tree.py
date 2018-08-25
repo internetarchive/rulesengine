@@ -8,7 +8,8 @@ from django.db.models import Q
 from rules.models import Rule
 
 
-def tree(surt, neg_surt=None, collection=None, partner=None,
+def tree(surt, enabled_only=True, include_retrieval_dates=True,
+         neg_surt=None, collection=None, partner=None,
          warc_match=None, capture_date=None):
     """Retrieves rules for all parts of the surt up to and including the
     provided surt.[0]
@@ -45,12 +46,17 @@ def tree(surt, neg_surt=None, collection=None, partner=None,
         tree_surts.append(part)
         surt_parts.pop()
     now = datetime.now(timezone.utc)
-    filters = (Q(surt__in=tree_surts) | Q(surt__startswith=surt)) & (
-        Q(enabled=True)) & (
-        Q(retrieve_date_start__isnull=False) &
-        Q(retrieve_date_end__isnull=False) &
-        Q(retrieve_date_start__lt=now) &
-        Q(retrieve_date_end__gt=now))
+    # This doesn't do what we want WRT dates and startswith
+    filters = Q(surt__in=tree_surts)
+    if enabled_only:
+        filters = filters & Q(enabled=True)
+    if include_retrieval_dates:
+        filters = filters & ((
+            Q(retrieve_date_end__isnull=True) |
+            Q(retrieve_date_start__isnull=True)
+            ) | (
+            Q(retrieve_date_start__lt=now) &
+            Q(retrieve_date_end__gt=now)))
     if neg_surt is not None:
         filters = filters & Q(neg_surt=neg_surt)
     if collection is not None:
