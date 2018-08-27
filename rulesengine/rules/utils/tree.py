@@ -10,7 +10,7 @@ from rules.models import Rule
 
 def tree(surt, enabled_only=True, include_retrieval_dates=True,
          neg_surt=None, collection=None, partner=None,
-         warc_match=None, capture_date=None):
+         capture_date=None):
     """Retrieves rules for all parts of the surt up to and including the
     provided surt.[0]
 
@@ -41,12 +41,9 @@ def tree(surt, enabled_only=True, include_retrieval_dates=True,
     tree_surts = []
     while surt_parts != []:
         part = ''.join(surt_parts)
-        if part[-1] == ')':
-            part = part[0:-1]
         tree_surts.append(part)
         surt_parts.pop()
     now = datetime.now(timezone.utc)
-    # This doesn't do what we want WRT dates and startswith
     filters = Q(surt__in=tree_surts)
     if enabled_only:
         filters = filters & Q(enabled=True)
@@ -62,9 +59,7 @@ def tree(surt, enabled_only=True, include_retrieval_dates=True,
     if collection is not None:
         filters = filters & Q(collection=collection)
     if partner is not None:
-        filters = filters & Q(parter=partner)
-    if warc_match is not None:
-        filters = filters & Q(warc_match__regex=warc_match)
+        filters = filters & Q(partner=partner)
     if capture_date is not None:
         filters = filters & (
             Q(capture_date_start__isnull=False) &

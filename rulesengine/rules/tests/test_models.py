@@ -19,8 +19,8 @@ class RuleBaseTestCase(TestCase):
         base = RuleBase()
         base.populate({
             'policy': 'block',
-            'surt': '(org,',
-            'neg_surt': '(org,archive,',
+            'surt': 'https://(org,',
+            'neg_surt': 'https://(org,archive,',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -40,8 +40,8 @@ class RuleBaseTestCase(TestCase):
             'enabled': True,
         })
         self.assertEqual(base.policy, 'block')
-        self.assertEqual(base.surt, '(org,')
-        self.assertEqual(base.neg_surt, '(org,archive,')
+        self.assertEqual(base.surt, 'https://(org,')
+        self.assertEqual(base.neg_surt, 'https://(org,archive,')
         self.assertEqual(base.capture_date_start, now)
         self.assertEqual(base.capture_date_end, now)
         self.assertEqual(base.retrieve_date_start, now)
@@ -60,8 +60,8 @@ class RuleBaseTestCase(TestCase):
         base = RuleBase()
         base.populate({
             'policy': 'block',
-            'surt': '(org,',
-            'neg_surt': '(org,archive,',
+            'surt': 'https://(org,',
+            'neg_surt': 'https://(org,archive,',
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -85,7 +85,8 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
-            'surt': '(org,',
+            'surt': 'https://(org,',
+            'neg_surt': 'https://(org,archive,api,)',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -107,7 +108,8 @@ class RuleTestCase(TestCase):
         self.assertEqual(rule.summary(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
-            'surt': '(org,',
+            'surt': 'https://(org,',
+            'neg_surt': 'https://(org,archive,api,)',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -131,7 +133,7 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
-            'surt': '(org,',
+            'surt': 'https://(org,',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -153,7 +155,7 @@ class RuleTestCase(TestCase):
         self.assertEqual(rule.full_values(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
-            'surt': '(org,',
+            'surt': 'https://(org,',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -178,7 +180,7 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
-            'surt': '(org,',
+            'surt': 'https://(org,',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -209,8 +211,8 @@ class RuleTestCase(TestCase):
     def test_str(self):
         rule = Rule(
             policy='block',
-            surt='(org,')
-        self.assertEqual(str(rule), 'BLOCK PLAYBACK ((org,)')
+            surt='https://(org,')
+        self.assertEqual(str(rule), 'BLOCK PLAYBACK (https://(org,)')
 
 
 class RuleChangeTestCase(TestCase):
@@ -220,7 +222,7 @@ class RuleChangeTestCase(TestCase):
         self.rule = Rule()
         self.rule_data = {
             'policy': 'block',
-            'surt': '(org,',
+            'surt': 'https://(org,',
             'capture_date': {
                 'start': self.now.isoformat(),
                 'end': self.now.isoformat(),
@@ -268,7 +270,7 @@ class RuleChangeTestCase(TestCase):
             change_type='c')
         change.populate({
             'policy': 'block',
-            'surt': '(org,',
+            'surt': 'https://(org,',
             'capture_date': {
                 'start': self.now.isoformat(),
                 'end': self.now.isoformat(),
@@ -287,7 +289,7 @@ class RuleChangeTestCase(TestCase):
             'private_comment': 'going roman',
             'enabled': True,
         })
-        self.assertEqual(change.full_change(), {
+        self.assertEqual(change.full_change(include_private=True), {
             'id': None,
             'rule_id': self.rule.id,
             'date': self.now,
@@ -295,9 +297,9 @@ class RuleChangeTestCase(TestCase):
             'comment': 'composed',
             'type': 'created',
             'rule': {
-                'id': None,
+                'id': 1,
                 'policy': 'block',
-                'surt': '(org,',
+                'surt': 'https://(org,',
                 'capture_date': {
                     'start': self.now.isoformat(),
                     'end': self.now.isoformat(),

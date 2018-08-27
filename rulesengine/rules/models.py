@@ -19,11 +19,11 @@ class RuleBase(models.Model):
     neg_surt = models.TextField(blank=True)
 
     # Used for daterange rules
-    capture_date_start = models.DateTimeField(null=True)
-    capture_date_end = models.DateTimeField(null=True)
-    retrieve_date_start = models.DateTimeField(null=True)
-    retrieve_date_end = models.DateTimeField(null=True)
-    seconds_since_capture = models.IntegerField(null=True)
+    capture_date_start = models.DateTimeField(null=True, blank=True)
+    capture_date_end = models.DateTimeField(null=True, blank=True)
+    retrieve_date_start = models.DateTimeField(null=True, blank=True)
+    retrieve_date_end = models.DateTimeField(null=True, blank=True)
+    seconds_since_capture = models.IntegerField(null=True, blank=True)
 
     # Used for WARC-related rules
     collection = models.TextField(blank=True)
@@ -189,12 +189,13 @@ class RuleChange(RuleBase):
             'type': self.get_change_type_display(),
         }
 
-    def full_change(self):
+    def full_change(self, include_private=False):
         """Get the full rule change.
 
         Returns:
         An object with the old rule fields and the change metadata.
         """
         values = self.change_summary()
-        values['rule'] = self.summary(include_private=True)
+        values['rule'] = self.summary(include_private=include_private)
+        values['rule']['id'] = self.rule.id
         return values
