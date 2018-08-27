@@ -1,0 +1,13 @@
+# for IA GitLab-CI
+stages:
+  - test
+
+before_script:
+  - apt-get update -qq && apt-get install -y virtualenv
+  - make venv
+
+test:3.5:
+  stage: test
+  image: python:3.5
+  script:
+    - make check
