@@ -31,7 +31,7 @@ class RulesView(View):
     def post(self, request, *args, **kwargs):
         """Creates a single rule in the collection."""
         try:
-            new_rule = json.loads(request.body)
+            new_rule = json.loads(request.body.decode('utf-8'))
         except Exception as e:
             return error('unable to marshal json', str(e))
         try:
