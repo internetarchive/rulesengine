@@ -12,7 +12,7 @@ run: venv rulesengine/db.sqlite3
 check: lint test benchmark
 
 .PHONY: benchmark
-benchmark: venv rulesengine/db.sqlite3
+benchmark: venv clean-db fuzz-large
 	cd rulesengine; \
 	../$(PYTHON) manage.py benchmark
 
@@ -36,8 +36,17 @@ lint: venv
 
 rulesengine/db.sqlite3: venv
 	cd rulesengine; \
-	../$(PYTHON) manage.py migrate; \
-	../$(PYTHON) manage.py loaddata rules/fixtures/*
+	../$(PYTHON) manage.py migrate;
+
+.PHONY: fuzz-large
+fuzz-large: rulesengine/db.sqlite3
+	cd rulesengine; \
+	../$(PYTHON) manage.py loaddata rules/fixtures/fuzzed-large.json
+
+.PHONY: fuzz-small
+fuzz-small:
+	cd rulesengine; \
+	../$(PYTHON) manage.py loaddata rules/fixtures/fuzzed-large.json
 
 venv:
 	virtualenv --python `which python3` venv
@@ -45,6 +54,13 @@ venv:
 	$(PIP) install -r requirements.txt
 
 .PHONY: clean
-clean:
-	rm -rf venv rulesengine/db.sqlite3
+clean: clean-db clean-files
+
+.PHONY: clean-db
+clean-db:
+	rm -rf rulesengine/db.sqlite3
+
+.PHONY: clean-files
+clean-files:
+	rm -rf venv
 	find rulesengine/ -name __pycache__ -or -name "*.py[co]" -exec rm -rf {} \;

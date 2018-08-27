@@ -6,6 +6,7 @@ import sys
 from django.core.management.base import BaseCommand
 
 from rules.models import Rule
+from rules.utils.validators import POLICY_CHOICES
 
 
 class Command(BaseCommand):
@@ -49,6 +50,7 @@ class Command(BaseCommand):
             surt = self.build_surt()
             if surt not in surts:
                 surts.append(surt)
+                self.stdout.write('{}: {}'.format(len(surts), surt))
         # Generate and save a rule for each SURT.
         for surt in surts:
             rule = Rule(surt=surt)
@@ -68,7 +70,7 @@ class Command(BaseCommand):
         surt += random.choice(self.TLDs)
         domain_chance = random.randint(0, 10)
         # 1 in 10 chance it's just a TLD
-        if domain_chance != 1:
+        if domain_chance == 1:
             return surt
         # Add an authority.
         surt += random.choice(self.DOMAINS)
@@ -111,7 +113,7 @@ class Command(BaseCommand):
     def add_constraints(self, rule):
         """Adds random constraints to the rule."""
         # Sets a random policy.
-        rule.policy = random.choice(Rule.POLICY_CHOICES)[0]
+        rule.policy = random.choice(POLICY_CHOICES)[0]
         # 1 in 2 chance of restriction by capture date.
         if random.randint(1, 2) == 1:
             rule.capture_date_start = self.NOW

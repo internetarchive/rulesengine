@@ -4,10 +4,7 @@ import json
 from django.views import View
 from django.views.generic.detail import SingleObjectMixin
 
-from .models import (
-    Rule,
-    RuleChange,
-)
+from .models import Rule
 from .utils.json import (
     error,
     success,
@@ -31,7 +28,7 @@ class RulesView(View):
             rules = Rule.objects.all()
         return success([rule.summary() for rule in rules])
 
-    def put(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """Creates a single rule in the collection."""
         try:
             new_rule = json.loads(request.body)
@@ -52,12 +49,12 @@ class RuleView(SingleObjectMixin, View):
 
     model = Rule
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """Gets a single rule."""
         rule = self.get_object()
         return success(rule.summary())
 
-    def post(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         """Updates a single rule and creates a changelog entry."""
         rule = self.get_object()
         try:
@@ -68,24 +65,12 @@ class RuleView(SingleObjectMixin, View):
             validate_rule_json(updates)
         except Exception as e:
             return error('error validating json', str(e))
-
-        # TODO this can take place in the save method on Rule, which would also
-        # cover creation and deletion.
-        change = RuleChange(
-            rule=rule,
-            change_user=updates['user'],
-            change_comment=updates['comment'])
-        change.populate(rule.full_values())
-        if rule.enabled and not updates['enabled']:
-            change.change_type = 'd'
-        else:
-            change.change_type = 'u'
-        change.save()
         rule.populate(updates)
         rule.save()
+        change = rule.rule_change.order_by('-id')[0]
         return success({
             'rule': rule.summary(),
-            'change': change.summary(),
+            'change': change.full_change(),
         })
 
     def delete(self, request, *args, **kwargs):
@@ -94,7 +79,7 @@ class RuleView(SingleObjectMixin, View):
         return success({})
 
 
-def tree_for_surt(request, surt_string):
+def tree_for_surt(request, surt_string=None):
     """Fetches a tree of rules for a given surt."""
     surt = Surt(surt_string)
     result = [rule.summary() for rule in tree(surt)]
@@ -110,26 +95,23 @@ def rules_for_request(request):
         into account.
     collection -- A collection name to match against.
     partner -- A partner Id to match against.
-    warc-match -- The WARC filename (or regex thereof) for matching.
     capture-date -- The date the playback data was captured (ISO 8601)."""
     surt_qs = request.GET.get('surt')
-    warc_match = request.GET.get('warc-match')
     capture_date_qs = request.GET.get('capture-date')
-    if surt_qs is None or warc_match is None or capture_date_qs is None:
-        return error('surt, warc-match, and capture-date query string params'
-                     ' are all required', {})
+    if surt_qs is None or capture_date_qs is None:
+        return error('surt and capture-date query string params'
+                     ' are both required', {})
     try:
         capture_date = parse_date(capture_date_qs)
     except ValueError as e:
         return error(
             'capture-date query string param must be '
-            'ISO 8601 format: {}'.format(str(e)), {})
+            'ISO 8601 format', str(e))
     surt = Surt(surt_qs)
-    tree = tree_for_surt(
+    tree_result = tree(
         surt,
         neg_surt=request.GET.get('neg-surt'),
         collection=request.GET.get('collection'),
         partner=request.GET.get('partner'),
-        warc_match=warc_match,
         capture_date=capture_date)
-    return success([rule.summary() for rule in tree])
+    return success([rule.summary() for rule in tree_result])

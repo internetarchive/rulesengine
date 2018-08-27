@@ -16,6 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from rules import views
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('rules', views.RulesView.as_view()),
+    path('rules/tree/<path:surt_string>', views.tree_for_surt),
+    path('rules/for-request', views.rules_for_request),
+    path('rule/<int:pk>', views.RuleView.as_view()),
 ]
