@@ -44,4 +44,5 @@ def error(message, obj):
     if obj is not None:
         result['result'] = obj
     return HttpResponse(ujson.dumps(result, pre_encode_hook=date_renderer),
-                        content_type='application/json')
+                        content_type='application/json',
+                        status=400)
