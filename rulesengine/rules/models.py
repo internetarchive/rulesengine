@@ -51,6 +51,7 @@ class RuleBase(models.Model):
         """
         validate_rule_json(values)
         self.policy = values['policy']
+        self.enabled = values['enabled']
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
         if 'capture_date' in values:
@@ -71,8 +72,6 @@ class RuleBase(models.Model):
         self.rewrite_to = values.get('rewrite_to', '')
         self.public_comment = values.get('public_comment', '')
         self.private_comment = values.get('private_comment', '')
-        if 'enabled' in values:
-            self.enabled = values['enabled']
 
     def summary(self, include_private=False):
         """Returns an object with publicly visible fields."""

@@ -13,7 +13,11 @@ class ValidateRuleJSONTestCase(TestCase):
 
     def test_success(self):
         try:
-            validate_rule_json({'policy': 'block', 'surt': 'http://('})
+            validate_rule_json({
+                'policy': 'block',
+                'enabled': True,
+                'surt': 'http://(',
+            })
             validate_rule_json({
                 'policy': 'block',
                 'surt': '(org,',
@@ -47,6 +51,7 @@ class ValidateRuleJSONTestCase(TestCase):
         with self.assertRaises(ValueError) as context:
             validate_rule_json({
                 'policy': 'block',
+                'enabled': True,
                 'surt': 'http://(',
                 'capture_date': {
                     'start': 'bad-wolf 1',
@@ -61,6 +66,7 @@ class ValidateRuleJSONTestCase(TestCase):
         with self.assertRaises(ValueError) as context:
             validate_rule_json({
                 'policy': 'block',
+                'enabled': True,
                 'surt': 'http://(',
                 'capture_date': {
                     'start': self.now.isoformat(),
@@ -75,6 +81,7 @@ class ValidateRuleJSONTestCase(TestCase):
         with self.assertRaises(ValueError) as context:
             validate_rule_json({
                 'policy': 'block',
+                'enabled': True,
                 'surt': 'http://(',
                 'retrieve_date': {
                     'start': 'bad-wolf 3',
@@ -89,6 +96,7 @@ class ValidateRuleJSONTestCase(TestCase):
         with self.assertRaises(ValueError) as context:
             validate_rule_json({
                 'policy': 'block',
+                'enabled': True,
                 'surt': 'http://(',
                 'retrieve_date': {
                     'start': self.now.isoformat(),
