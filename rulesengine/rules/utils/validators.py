@@ -16,6 +16,7 @@ SCHEMA = {
     'type': 'object',
     'properties': {
         'policy': {'enum': [choice[0] for choice in POLICY_CHOICES]},
+        'enabled': {'type': 'boolean'},
         'surt': {'type': 'string'},
         'neg_surt': {'type': 'string'},
         'capture_date': {
@@ -48,10 +49,10 @@ SCHEMA = {
         'rewrite_to': {'type': 'string'},
         'private_comment': {'type': 'string'},
         'public_comment': {'type': 'string'},
-        'enabled': {'type': 'boolean'},
     },
     'required': [
         'policy',
+        'enabled',
         'surt',
     ]
 }
