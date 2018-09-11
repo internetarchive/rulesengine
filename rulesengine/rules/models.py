@@ -11,33 +11,66 @@ from rules.utils.validators import (
 class RuleBase(models.Model):
     """Abstract model representing the base fields for rules and changes."""
 
-    policy = models.CharField(max_length=10, choices=POLICY_CHOICES)
+    policy = models.CharField(
+        help_text="""What action the Wayback Machine should take on encountering this rule""",  # noqa: E501
+        max_length=10, choices=POLICY_CHOICES)
 
     # Used for surt and surt-neg rules
-    surt = models.TextField()
+    surt = models.TextField(
+        verbose_name='SURT',
+        help_text="""The SURT (or partial SURT) to which this rule applies. This may be an incomplete SURT which will be matched for a more specific URL.""")  # noqa: E501
     # SURT Negation example: rewrite everything but a given path
-    neg_surt = models.TextField(blank=True)
+    neg_surt = models.TextField(
+        verbose_name='SURT negation',
+        help_text="""A SURT to use as an exception (i.e: if you want to use the rewrite_from/rewrite_to fields on a broad-scope SURT, -except- a subset, that subset would be represented here)""",  # noqa: E501
+        blank=True)
 
     # Used for daterange rules
-    capture_date_start = models.DateTimeField(null=True, blank=True)
-    capture_date_end = models.DateTimeField(null=True, blank=True)
-    retrieve_date_start = models.DateTimeField(null=True, blank=True)
-    retrieve_date_end = models.DateTimeField(null=True, blank=True)
-    seconds_since_capture = models.IntegerField(null=True, blank=True)
+    capture_date_start = models.DateTimeField(
+        help_text="""The earliest date of capture to start applying this rule.""",  # noqa: E501
+        null=True, blank=True)
+    capture_date_end = models.DateTimeField(
+        help_text="""The latest date of capture to apply this rule.""",
+        null=True, blank=True)
+    retrieve_date_start = models.DateTimeField(
+        help_text="""The earliest date of retrieval to start applying this rule.""",  # noqa: E501
+        null=True, blank=True)
+    retrieve_date_end = models.DateTimeField(
+        help_text="""The latest date of retrieval to apply this rule.""",
+        null=True, blank=True)
+    seconds_since_capture = models.IntegerField(
+        help_text="""Number of seconds after capture to apply this rule.""",
+        null=True, blank=True)
 
     # Used for WARC-related rules
-    collection = models.TextField(blank=True)
-    partner = models.TextField(blank=True)
-    warc_match = models.TextField(blank=True)
+    collection = models.TextField(
+        help_text="""The collection this rule applies to.""",
+        blank=True)
+    partner = models.TextField(
+        help_text="""The partner this rule applies to.""",
+        blank=True)
+    warc_match = models.TextField(
+        help_text="""A regular expression for matching against a WARC name to decide whether or not this rule applies (matching must be done on the client side.)""",  # noqa: E501
+        blank=True)
 
     # Rewrite rules
-    rewrite_from = models.TextField(blank=True)
-    rewrite_to = models.TextField(blank=True)
+    rewrite_from = models.TextField(
+        help_text="""Text to match on the page that needs to be rewritten.""",
+        blank=True)
+    rewrite_to = models.TextField(
+        help_text="""Resulting text for rewrite matches.""",
+        blank=True)
 
     # Metadata
-    private_comment = models.TextField(blank=True)
-    public_comment = models.TextField(blank=True)
-    enabled = models.BooleanField(default=True)
+    private_comment = models.TextField(
+        help_text="""Explanatory comment visible only to rules engine admins.""",  # noqa: E501
+        blank=True)
+    public_comment = models.TextField(
+        help_text="""Publicly visible explanatory comment.""",
+        blank=True)
+    enabled = models.BooleanField(
+        help_text="""Whether or not the rule is enabled and returned for use.""",  # noqa: E501
+        default=True)
 
     class Meta:
         abstract = True
@@ -170,8 +203,12 @@ class RuleChange(RuleBase):
         on_delete=models.CASCADE,
         related_name='rule_change')
     change_date = models.DateTimeField(auto_now=True)
-    change_user = models.TextField(blank=True)
-    change_comment = models.TextField(blank=True)
+    change_user = models.TextField(
+        help_text="""The name of the individual making this change.""",
+        blank=True)
+    change_comment = models.TextField(
+        help_text="""A brief explanation of the change.""",
+        blank=True)
     change_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
     def change_summary(self):
