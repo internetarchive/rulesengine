@@ -21,7 +21,7 @@ class RuleBase(models.Model):
         help_text="""The SURT (or partial SURT) to which this rule applies. This may be an incomplete SURT which will be matched for a more specific URL.""")  # noqa: E501
     # SURT Negation example: rewrite everything but a given path
     neg_surt = models.TextField(
-        verbose_name='SURT negation'
+        verbose_name='SURT negation',
         help_text="""A SURT to use as an exception (i.e: if you want to use the rewrite_from/rewrite_to fields on a broad-scope SURT, -except- a subset, that subset would be represented here)""",  # noqa: E501
         blank=True)
 
