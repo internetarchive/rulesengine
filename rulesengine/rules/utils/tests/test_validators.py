@@ -16,6 +16,7 @@ class ValidateRuleJSONTestCase(TestCase):
             validate_rule_json({
                 'policy': 'block',
                 'enabled': True,
+                'environment': 'prod',
                 'surt': 'http://(',
             })
             validate_rule_json({
@@ -43,6 +44,7 @@ class ValidateRuleJSONTestCase(TestCase):
                 'public_comment': 'initial creation',
                 'private_comment': 'going roman',
                 'enabled': True,
+                'environment': 'prod',
             })
         except Exception:
             self.fail('validate_rule_json unexpectedly raised an exception')
@@ -60,6 +62,7 @@ class ValidateRuleJSONTestCase(TestCase):
             validate_rule_json({
                 'policy': 'block',
                 'enabled': True,
+                'environment': 'prod',
                 'surt': 'http://(',
                 'capture_date': {
                     'start': 'bad-wolf 1',
@@ -75,6 +78,7 @@ class ValidateRuleJSONTestCase(TestCase):
             validate_rule_json({
                 'policy': 'block',
                 'enabled': True,
+                'environment': 'prod',
                 'surt': 'http://(',
                 'capture_date': {
                     'start': self.now.isoformat(),
@@ -90,6 +94,7 @@ class ValidateRuleJSONTestCase(TestCase):
             validate_rule_json({
                 'policy': 'block',
                 'enabled': True,
+                'environment': 'prod',
                 'surt': 'http://(',
                 'retrieve_date': {
                     'start': 'bad-wolf 3',
@@ -105,6 +110,7 @@ class ValidateRuleJSONTestCase(TestCase):
             validate_rule_json({
                 'policy': 'block',
                 'enabled': True,
+                'environment': 'prod',
                 'surt': 'http://(',
                 'retrieve_date': {
                     'start': self.now.isoformat(),
