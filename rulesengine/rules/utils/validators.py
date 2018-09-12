@@ -1,4 +1,5 @@
 from dateutil.parser import parse as parse_date
+import ipaddr
 import jsonschema
 
 
@@ -41,6 +42,17 @@ SCHEMA = {
                 'end',
             ]
         },
+        'ip_range': {
+            'type': 'object',
+            'properties': {
+                'start': {'type': 'string'},
+                'end': {'type': 'string'},
+            },
+            'required': [
+                'start',
+                'end',
+            ],
+        },
         'seconds_since_capture': {'type': 'integer'},
         'collection': {'type': 'string'},
         'partner': {'type': 'string'},
@@ -79,3 +91,12 @@ def validate_rule_json(input):
             parse_date(input['retrieve_date']['end'])
         except ValueError as e:
             raise ValueError(('retrieve end date', e))
+    if 'ip_range' in input:
+        try:
+            ipaddr.IPAddress(input['ip_range']['start'])
+        except ValueError as e:
+            raise ValueError(('ip range start', e))
+        try:
+            ipaddr.IPAddress(input['ip_range']['end'])
+        except ValueError as e:
+            raise ValueError(('ip range end', e))
