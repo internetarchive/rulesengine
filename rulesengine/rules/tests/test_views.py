@@ -22,6 +22,7 @@ class ViewsTestCase(TestCase):
         now = datetime.now(timezone.utc)
         self.rule.populate({
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,archive,',
             'capture_date': {
                 'start': now.isoformat(),
@@ -79,6 +80,7 @@ class ViewsTestCase(TestCase):
             data={
                 'surt': 'http://(doctor,who,)/companions/rose',
                 'enabled': False,
+                'environment': 'prod',
                 'policy': 'allow',
             })
         self.assertEqual(response.status_code, 200)

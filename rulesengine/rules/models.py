@@ -3,6 +3,7 @@ from dateutil.parser import parse as parse_date
 from django.db import models
 
 from rules.utils.validators import (
+    ENVIRONMENT_CHOICES,
     POLICY_CHOICES,
     validate_rule_json,
 )
@@ -68,6 +69,11 @@ class RuleBase(models.Model):
     public_comment = models.TextField(
         help_text="""Publicly visible explanatory comment.""",
         blank=True)
+    environment = models.TextField(
+        help_text="""What environment the rule should apply to. Environments limit who can see the effects of a rule (e.g: QA environment means playback QA engineers can see the effects but the public can't).""",  # noqa: E501
+        choices=ENVIRONMENT_CHOICES,
+        default="prod"
+    )
     enabled = models.BooleanField(
         help_text="""Whether or not the rule is enabled and returned for use.""",  # noqa: E501
         default=True)
@@ -85,6 +91,7 @@ class RuleBase(models.Model):
         validate_rule_json(values)
         self.policy = values['policy']
         self.enabled = values['enabled']
+        self.environment = values['environment']
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
         if 'capture_date' in values:
@@ -111,6 +118,7 @@ class RuleBase(models.Model):
         values = {
             'id': self.id,
             'policy': self.policy,
+            'environment': self.environment,
             'surt': self.surt,
             'enabled': self.enabled,
         }

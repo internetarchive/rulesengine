@@ -12,11 +12,18 @@ POLICY_CHOICES = (
     ('rewrite-headers', 'Rewrite playback headers'),
 )
 
+ENVIRONMENT_CHOICES = (
+    ('prod', 'Production'),
+    ('qa', 'QA/development'),
+)
+
 SCHEMA = {
     'type': 'object',
     'properties': {
         'policy': {'enum': [choice[0] for choice in POLICY_CHOICES]},
         'enabled': {'type': 'boolean'},
+        'environment': {
+            'enum': [choice[0] for choice in ENVIRONMENT_CHOICES]},
         'surt': {'type': 'string'},
         'neg_surt': {'type': 'string'},
         'capture_date': {
@@ -52,6 +59,7 @@ SCHEMA = {
     },
     'required': [
         'policy',
+        'environment',
         'enabled',
         'surt',
     ]
