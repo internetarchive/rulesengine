@@ -129,6 +129,7 @@ class ValidateRuleJSONTestCase(TestCase):
             validate_rule_json({
                 'policy': 'block',
                 'enabled': True,
+                'environment': 'prod',
                 'surt': 'http://(',
                 'ip_range': {
                     'start': 'bad wolf',
@@ -146,6 +147,7 @@ class ValidateRuleJSONTestCase(TestCase):
             validate_rule_json({
                 'policy': 'block',
                 'enabled': True,
+                'environment': 'prod',
                 'surt': 'http://(',
                 'ip_range': {
                     'start': '4.4.4.4',
