@@ -19,6 +19,7 @@ class RuleBaseTestCase(TestCase):
         base = RuleBase()
         base.populate({
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,',
             'capture_date': {
@@ -44,6 +45,7 @@ class RuleBaseTestCase(TestCase):
             'enabled': True,
         })
         self.assertEqual(base.policy, 'block')
+        self.assertEqual(base.environment, 'prod')
         self.assertEqual(base.surt, 'https://(org,')
         self.assertEqual(base.neg_surt, 'https://(org,archive,')
         self.assertEqual(base.capture_date_start, now)
@@ -66,6 +68,7 @@ class RuleBaseTestCase(TestCase):
         base = RuleBase()
         base.populate({
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,',
             'seconds_since_capture': 256,
@@ -91,6 +94,7 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,api,)',
             'capture_date': {
@@ -118,6 +122,7 @@ class RuleTestCase(TestCase):
         self.assertEqual(rule.summary(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,api,)',
             'capture_date': {
@@ -147,6 +152,7 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'capture_date': {
                 'start': now.isoformat(),
@@ -169,6 +175,7 @@ class RuleTestCase(TestCase):
         self.assertEqual(rule.full_values(), {
             'id': None,  # The rule wasn't saved, so this won't be populated.
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'capture_date': {
                 'start': now.isoformat(),
@@ -194,6 +201,7 @@ class RuleTestCase(TestCase):
         rule = Rule()
         rule.populate({
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'capture_date': {
                 'start': now.isoformat(),
@@ -236,6 +244,7 @@ class RuleChangeTestCase(TestCase):
         self.rule = Rule()
         self.rule_data = {
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'capture_date': {
                 'start': self.now.isoformat(),
@@ -284,6 +293,7 @@ class RuleChangeTestCase(TestCase):
             change_type='c')
         change.populate({
             'policy': 'block',
+            'environment': 'prod',
             'surt': 'https://(org,',
             'capture_date': {
                 'start': self.now.isoformat(),
@@ -313,6 +323,7 @@ class RuleChangeTestCase(TestCase):
             'rule': {
                 'id': 1,
                 'policy': 'block',
+                'environment': 'prod',
                 'surt': 'https://(org,',
                 'capture_date': {
                     'start': self.now.isoformat(),
