@@ -5,6 +5,7 @@ Django==2.1
 django-extensions==2.1.0
 flake8==3.5.0
 idna==2.7
+ipaddr==2.2.0
 jsonschema==2.6.0
 mccabe==0.6.1
 pycodestyle==2.3.1
@@ -16,6 +17,7 @@ requests-file==1.4.3
 six==1.11.0
 surt==0.3.0
 tldextract==2.2.0
+ujson==1.35
 urlcanon==0.2
 urllib3==1.23
 Werkzeug==0.14.1

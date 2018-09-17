@@ -42,6 +42,14 @@ class RuleBase(models.Model):
         help_text="""Number of seconds after capture to apply this rule.""",
         null=True, blank=True)
 
+    # Used for IP range rules
+    ip_range_start = models.GenericIPAddressField(
+        help_text="""The start of the IP address range to apply this rule to.""",  # noqa: E501
+        null=True, blank=True)
+    ip_range_end = models.GenericIPAddressField(
+        help_text="""The end of the IP address range to apply this rule to.""",  # noqa: E501
+        null=True, blank=True)
+
     # Used for WARC-related rules
     collection = models.TextField(
         help_text="""The collection this rule applies to.""",
@@ -97,6 +105,9 @@ class RuleBase(models.Model):
                 values['retrieve_date']['start'])
             self.retrieve_date_end = parse_date(
                 values['retrieve_date']['end'])
+        if 'ip_range' in values:
+            self.ip_range_start = values['ip_range']['start']
+            self.ip_range_end = values['ip_range']['end']
         self.seconds_since_capture = values.get('seconds_since_capture')
         self.collection = values.get('collection', '')
         self.partner = values.get('partner', '')
@@ -141,6 +152,11 @@ class RuleBase(models.Model):
             values['retrieve_date'] = {
                 'start': self.retrieve_date_start.isoformat(),
                 'end': self.retrieve_date_end.isoformat(),
+            }
+        if self.ip_range_start and self.ip_range_end:
+            values['ip_range'] = {
+                'start': self.ip_range_start,
+                'end': self.ip_range_end,
             }
         return values
 

@@ -29,6 +29,10 @@ class RuleBaseTestCase(TestCase):
                 'start': now.isoformat(),
                 'end': now.isoformat(),
             },
+            'ip_range': {
+                'start': '4.4.4.4',
+                'end': '8.8.8.8',
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -46,6 +50,8 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.capture_date_end, now)
         self.assertEqual(base.retrieve_date_start, now)
         self.assertEqual(base.retrieve_date_end, now)
+        self.assertEqual(base.ip_range_start, '4.4.4.4')
+        self.assertEqual(base.ip_range_end, '8.8.8.8')
         self.assertEqual(base.seconds_since_capture, 256)
         self.assertEqual(base.collection, 'Planets')
         self.assertEqual(base.partner, 'Holst')
@@ -95,6 +101,10 @@ class RuleTestCase(TestCase):
                 'start': now.isoformat(),
                 'end': now.isoformat(),
             },
+            'ip_range': {
+                'start': '4.4.4.4',
+                'end': '8.8.8.8',
+            },
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -117,6 +127,10 @@ class RuleTestCase(TestCase):
             'retrieve_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
+            },
+            'ip_range': {
+                'start': '4.4.4.4',
+                'end': '8.8.8.8',
             },
             'seconds_since_capture': 256,
             'collection': 'Planets',

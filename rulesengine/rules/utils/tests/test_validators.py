@@ -22,10 +22,18 @@ class ValidateRuleJSONTestCase(TestCase):
                 'policy': 'block',
                 'surt': '(org,',
                 'neg_surt': '(org,archive,',
-                'capture_date_start': self.now.isoformat(),
-                'capture_date_end': self.now.isoformat(),
-                'retrieve_date_start': self.now.isoformat(),
-                'retrieve_date_end': self.now.isoformat(),
+                'capture_date': {
+                    'start': self.now.isoformat(),
+                    'end': self.now.isoformat(),
+                },
+                'retrieve_date': {
+                    'start': self.now.isoformat(),
+                    'end': self.now.isoformat(),
+                },
+                'ip_range': {
+                    'start': '4.4.4.4',
+                    'end': '8.8.8.8',
+                },
                 'seconds_since_capture': 256,
                 'collection': 'Planets',
                 'partner': 'Holst',
@@ -108,3 +116,40 @@ class ValidateRuleJSONTestCase(TestCase):
             str(ValueError((
                 'retrieve end date',
                 ValueError('Unknown string format:', 'bad-wolf 4')))))
+
+    def test_ip_range_fail(self):
+        self.maxDiff = None
+        with self.assertRaises(ValueError) as context:
+            validate_rule_json({
+                'policy': 'block',
+                'enabled': True,
+                'surt': 'http://(',
+                'ip_range': {
+                    'start': 'bad wolf',
+                    'end': '8.8.8.8',
+                },
+            })
+        self.assertEqual(
+            str(context.exception),
+            str(ValueError((
+                'ip range start',
+                ValueError("'bad wolf' does not appear to be an IPv4 or "
+                           'IPv6 address')
+            ))))
+        with self.assertRaises(ValueError) as context:
+            validate_rule_json({
+                'policy': 'block',
+                'enabled': True,
+                'surt': 'http://(',
+                'ip_range': {
+                    'start': '4.4.4.4',
+                    'end': 'bad wolf',
+                },
+            })
+        self.assertEqual(
+            str(context.exception),
+            str(ValueError((
+                'ip range end',
+                ValueError("'bad wolf' does not appear to be an IPv4 or "
+                           'IPv6 address')
+            ))))
