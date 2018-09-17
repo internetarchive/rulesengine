@@ -15,7 +15,7 @@ POLICY_CHOICES = (
 
 ENVIRONMENT_CHOICES = (
     ('prod', 'Production'),
-    ('qa', 'QA/development'),
+    ('test', 'Testing/development'),
 )
 
 SCHEMA = {
