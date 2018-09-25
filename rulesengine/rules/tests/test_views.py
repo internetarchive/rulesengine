@@ -77,12 +77,12 @@ class ViewsTestCase(TestCase):
         response = self.client.post(
             '/rules',
             content_type='application/json',
-            data={
+            data=json.dumps({
                 'surt': 'http://(doctor,who,)/companions/rose',
                 'enabled': False,
                 'environment': 'prod',
                 'policy': 'allow',
-            })
+            }))
         self.assertEqual(response.status_code, 200)
         parsed = json.loads(response.content.decode('utf-8'))
         self.assertEqual(parsed['status'], 'success')
@@ -102,7 +102,7 @@ class ViewsTestCase(TestCase):
         response = self.client.post(
             '/rules',
             content_type='application/json',
-            data={'bad': 'wolf'})
+            data=json.dumps({'bad': 'wolf'}))
         self.assertEqual(response.status_code, 400)
         parsed = json.loads(response.content.decode('utf-8'))
         self.assertEqual(parsed['status'], 'error')
@@ -125,7 +125,7 @@ class ViewsTestCase(TestCase):
         response2 = self.client.put(
             '/rule/1',
             content_type='application/json',
-            data=payload)
+            data=json.dumps(payload))
         self.assertEqual(response2.status_code, 200)
         update = json.loads(response2.content.decode('utf-8'))
         self.assertEqual(update['result']['rule']['public_comment'], 'UPDATE')
@@ -144,7 +144,7 @@ class ViewsTestCase(TestCase):
         response = self.client.put(
             '/rule/1',
             content_type='application/json',
-            data={'bad': 'wolf'})
+            data=json.dumps({'bad': 'wolf'}))
         self.assertEqual(response.status_code, 400)
         parsed = json.loads(response.content.decode('utf-8'))
         self.assertEqual(parsed['status'], 'error')
