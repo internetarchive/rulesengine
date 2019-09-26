@@ -202,4 +202,4 @@ class ViewsTestCase(TestCase):
         self.assertEqual(parsed['status'], 'error')
         self.assertEqual(
             parsed['message'], 'capture-date query string param must be '
-            'ISO 8601 format')
+            'a datetime')
