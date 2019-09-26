@@ -1,4 +1,4 @@
-from dateutil.parser import isoparse as parse_date
+from dateutil.parser import parse as parse_date
 import json
 
 from django.views import View
@@ -106,7 +106,7 @@ def rules_for_request(request):
     except ValueError as e:
         return error(
             'capture-date query string param must be '
-            'ISO 8601 format', str(e))
+            'a datetime', str(e))
     surt = Surt(surt_qs)
     tree_result = tree(
         surt,
