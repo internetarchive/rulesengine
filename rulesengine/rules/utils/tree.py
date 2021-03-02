@@ -50,10 +50,10 @@ def tree(surt, enabled_only=True, include_retrieval_dates=True,
     if include_retrieval_dates:
         filters = filters & ((
             Q(retrieve_date_end__isnull=True) |
-            Q(retrieve_date_start__isnull=True)
-            ) | (
-            Q(retrieve_date_start__lt=now) &
-            Q(retrieve_date_end__gt=now)))
+            Q(retrieve_date_end__gt=now)
+            ) & (
+            Q(retrieve_date_start__isnull=True) |
+            Q(retrieve_date_start__lt=now)))
     if neg_surt is not None:
         filters = filters & Q(neg_surt=neg_surt)
     if collection is not None:
@@ -61,9 +61,11 @@ def tree(surt, enabled_only=True, include_retrieval_dates=True,
     if partner is not None:
         filters = filters & Q(partner=partner)
     if capture_date is not None:
-        filters = filters & (
-            Q(capture_date_start__isnull=False) &
-            Q(capture_date_end__isnull=False) &
-            Q(capture_date_start__lt=capture_date) &
-            Q(capture_date_end__gt=capture_date))
+        filters = filters & ((
+            Q(capture_date_end__isnull=True) |
+            Q(capture_date_end__gt=capture_date)
+            ) & (
+            Q(capture_date_start__isnull=True) |
+            Q(capture_date_start__lt=capture_date)))
+    # breakpoint()
     return Rule.objects.filter(filters)
