@@ -1,4 +1,5 @@
 from urlcanon import parse_url
+#import surt
 
 
 class Surt(object):
@@ -12,14 +13,15 @@ class Surt(object):
         """
         self.surt = surt
 
-        # Pull out the protocol
+        # Pull out the protocol, if there is one
         try:
             self.protocol, surt = surt.split('://(', 1)
         except ValueError:
             # If there's no protocol separator, then assume we've received
             # only the protocol (e.g: `Surt('http')`).
-            self.protocol = surt
-            surt = ''
+            # self.protocol = surt
+            # surt = ''
+            self.protocol = None
 
         # Pull out the domain.
         try:
@@ -81,7 +83,8 @@ class Surt(object):
             self.domain_parts = []
 
         self.parts = []
-        self.parts.append(self.protocol + '://(')
+        if self.protocol:
+            self.parts.append(self.protocol + '://(')
         for domain_part in self.domain_parts:
             self.parts.append('{},'.format(domain_part))
         if self.closing_paren:
@@ -104,6 +107,7 @@ class Surt(object):
         Returns:
         A SURT broken down into its parts.
         """
+        #return surt.surt(url)
         return cls(parse_url(url).surt().decode('utf-8'))
 
     def __str__(self):
