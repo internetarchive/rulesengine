@@ -16,5 +16,5 @@ surt==0.3.0
 tldextract==2.2.0
 ujson==1.35
 urlcanon==0.2
-urllib3==1.23
+urllib3==1.24.2
 Werkzeug==0.14.1
