@@ -97,16 +97,17 @@ def rules_for_request(request):
     partner -- A partner Id to match against.
     capture-date -- The date the playback data was captured (ISO 8601)."""
     surt_qs = request.GET.get('surt')
+    if surt_qs is None:
+        return error('surt query string param is required', {})
     capture_date_qs = request.GET.get('capture-date')
-    if surt_qs is None or capture_date_qs is None:
-        return error('surt and capture-date query string params'
-                     ' are both required', {})
-    try:
-        capture_date = parse_date(capture_date_qs)
-    except ValueError as e:
-        return error(
-            'capture-date query string param must be '
-            'a datetime', str(e))
+    capture_date = None
+    if capture_date_qs:
+        try:
+            capture_date = parse_date(capture_date_qs)
+        except ValueError as e:
+            return error(
+                'capture-date query string param must be '
+                'a datetime', str(e))
     surt = Surt(surt_qs)
     tree_result = tree(
         surt,

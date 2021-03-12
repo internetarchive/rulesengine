@@ -187,8 +187,7 @@ class ViewsTestCase(TestCase):
         parsed = json.loads(response.content.decode('utf-8'))
         self.assertEqual(parsed['status'], 'error')
         self.assertEqual(
-            parsed['message'], 'surt and capture-date query string params'
-            ' are both required')
+            parsed['message'], 'surt query string param is required')
 
     def test_rules_for_request_malformed_date(self):
         response = self.client.get(
