@@ -17,11 +17,13 @@ class Surt(object):
         try:
             self.protocol, surt = surt.split('://(', 1)
         except ValueError:
-            # If there's no protocol separator, then assume we've received
+            # If there's no protocol separator, then maybe we've received
             # only the protocol (e.g: `Surt('http')`).
-            # self.protocol = surt
-            # surt = ''
-            self.protocol = None
+            if surt == 'http' or surt == 'https':
+                self.protocol = surt
+                surt = ''
+            else:
+                self.protocol = None
 
         # Pull out the domain.
         try:
