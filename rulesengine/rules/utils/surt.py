@@ -29,6 +29,8 @@ class Surt(object):
         try:
             self.domain, surt = surt.split(')', 1)
             self.closing_paren = True
+            if self.domain.startswith('fuzzy:'):
+                self.domain = self.domain[6:]
         except ValueError:
             # If there's no path separator, we've received only the domain.
             self.closing_paren = False
@@ -89,6 +91,9 @@ class Surt(object):
             self.parts.append(self.protocol + '://(')
         for domain_part in self.domain_parts:
             self.parts.append('{},'.format(domain_part))
+        if self.domain_parts:
+            # skip , before ) EXCEPT for rules themselves we need...
+            self.parts[-1] = self.parts[-1][:-1]
         if self.closing_paren:
             self.parts.append(')')
             for path_part in self.path_parts:
