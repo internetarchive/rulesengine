@@ -15,7 +15,7 @@ There are two make targets of note: `make test` runs all tests via Django's test
 ## License
 
 Rules engine for interacting with Wayback Machine playbacks
-Copyright © 2018 Internet Archive
+Copyright © 2021 Internet Archive
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
