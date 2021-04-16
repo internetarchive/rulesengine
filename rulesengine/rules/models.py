@@ -14,7 +14,7 @@ class RuleBase(models.Model):
 
     policy = models.CharField(
         help_text="""What action the Wayback Machine should take on encountering this rule""",  # noqa: E501
-        max_length=10, choices=POLICY_CHOICES)
+        max_length=15, choices=POLICY_CHOICES)
 
     # Used for surt and surt-neg rules
     surt = models.TextField(
