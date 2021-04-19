@@ -156,8 +156,8 @@ class ViewsTestCase(TestCase):
         response = self.client.get('/rule/1')
         self.assertEqual(response.status_code, 404)
 
-    def test_tree_for_surt(self):
-        response = self.client.get('/rules/tree/https://(org,archive,')
+    def test_rules_for_surt(self):
+        response = self.client.get('/rules/tree/org,archive)')
         self.assertEqual(response.status_code, 200)
         parsed = json.loads(response.content.decode('utf-8'))
         self.assertEqual(parsed['status'], 'success')
