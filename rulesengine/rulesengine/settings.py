@@ -83,10 +83,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'rulesengine',
-        'USER': 'rulesengineer',
-        'PASSWORD': 's33krit',
-        'HOST': 'localhost',
-        'PORT': '',
+        'USER': 'archiveit',
+        'PASSWORD': 'archiveit',
+        'HOST': 'db.qa-archive-it.org',
+        'PORT': '5432',
+        'CONN_MAX_AGE': 0
     }
 }
 
