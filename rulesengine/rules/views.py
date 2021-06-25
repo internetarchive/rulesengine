@@ -155,9 +155,13 @@ def rules_query(surt_qs,enabled_only=True, include_retrieval_dates=True,
     if neg_surt is not None:
         filters = filters & Q(neg_surt=neg_surt)
     if collection is not None:
-        filters = filters & Q(collection=collection)
+        filters = filters & (
+                Q(collection=collection) |
+                Q(collection=''))
     if partner is not None:
-        filters = filters & Q(partner=partner)
+        filters = filters & (
+                Q(partner=partner) |
+                Q(partner=''))
     if capture_date is not None:
         filters = filters & ((
             Q(capture_date_end__isnull=True) |
