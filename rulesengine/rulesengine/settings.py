@@ -26,10 +26,11 @@ SECRET_KEY = '_0x3d1g@*g1f@g(kikuj=887ljn0%bkpxuv2p@+=w+2)d*#@ze'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-        'localhost',
-        'focal',
-        '0.0.0.0',
-        ]
+    'localhost',
+    'focal',
+    '0.0.0.0',
+    'rulesengine-local'
+]
 
 
 # Application definition
