@@ -49,9 +49,16 @@ class RuleAdmin(admin.ModelAdmin):
             # If the search_term specifies no protocol, prepend one for the same
             # of generating the SURT. Exclude the scheme and trailing comma from
             # the SURT.
-            surt = urlcanon.parse_url(
+            parsed = urlcanon.parse_url(
                 search_term if protocol else 'http://{}'.format(search_term)
-            ).surt(with_scheme=False, trailing_comma=False).decode('utf-8')
+            )
+            # Add a trailing slash if necessary to get ensure that the resulting
+            # SURT includes it.
+            parsed.path = parsed.path or b'/'
+            surt = parsed.surt(
+                with_scheme=False,
+                trailing_comma=False
+            ).decode('utf-8')
 
         # Create a surt query for both verbatim and wildcard matches.
         surt_query = Q(surt=surt) | Q(surt=surt + '%')
