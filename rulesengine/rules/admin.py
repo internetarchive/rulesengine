@@ -140,6 +140,31 @@ class RuleAdmin(admin.ModelAdmin):
 
         return surt_part_options_tuples
 
+    def _build_surt_query(self, surt):
+        # Match on any rule for which this surt is prefix of its surt.
+        # Maybe this is too loose a match and should be behind a flag?
+        surt_query = Q(surt__startswith=surt)
+
+        # Note that the above prefix match replaces the following logic with
+        # maybe we want to reinstate with the looser, prefix match behind a
+        # flag?
+        #
+        # # Match on verbatim surt or verbatim surt with trailing wildcard.
+        # surt_query = Q(surt=surt) | Q(surt=surt + '%')
+
+        # # If SURT not closed, match on closed version and closed version with
+        # # trailing wildcard.
+        # if ')/' not in surt:
+        #     surt_query |= Q(surt=surt + ')/')
+        #     surt_query |= Q(surt=surt + ')/%')
+        # # Match on any prefix part with a trailing wildcard.
+        # query_parts = []
+        # for part in surt.split(','):
+        #     query_parts.append(part)
+        #     surt_query |= Q(surt=','.join(query_parts) + '%')
+
+        return surt_query
+
     def get_search_results(self, request, queryset, search_term):
         """Define a custom search handler that automatically converts a
         URL input to a SURT.
@@ -176,10 +201,7 @@ class RuleAdmin(admin.ModelAdmin):
             self._get_surt_part_options_tuples(surt_part_tree, protocol, surt)
 
         # Create a surt query for both verbatim and wildcard matches.
-        surt_query = Q(surt=surt) | Q(surt=surt + '%')
-        if ')/' not in surt:
-            surt_query |= Q(surt=surt + ')/')
-            surt_query |= Q(surt=surt + ')/%')
+        surt_query = self._build_surt_query(surt)
 
         if protocol is None:
             # Protocol was not specified, so search for rules with a similarly

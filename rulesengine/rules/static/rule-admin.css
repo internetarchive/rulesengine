@@ -1,6 +1,8 @@
 
 #surt-part-navigator {
   border-bottom: solid 1px #ccc;
+  /* Set same margin-right as built-in action element */
+  margin-right: 280px;
 }
 
 #surt-part-navigator > select {
