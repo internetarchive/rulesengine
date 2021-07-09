@@ -12,7 +12,7 @@ from .models import (
     RuleChange
 )
 
-SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+)://)?(?P<rest>.*)$')
+SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+))?://(?P<rest>.*)$')
 
 # TODO - flush cache on any rule addition or modification
 @lru_cache(maxsize=1)
@@ -67,12 +67,44 @@ class RuleAdmin(admin.ModelAdmin):
     list_filter = ("enabled", "partner", "collection")
     search_fields = ("surt",)
 
+    # Rope in the custom CSS and JS.
+    class Media:
+        css = {
+            "all": ("rule-admin.css",)
+        }
+        js = ("rule-admin.js",)
+
     def get_search_results(self, request, queryset, search_term):
         """Define a custom search handler that automatically converts a
         URL input to a SURT.
         """
+        # We don't expect these search results to include duplicates, so
+        # specify that here to make the return expressions more explicit.
+        MAY_HAVE_DUPLICATES = False
+
+        # Add the surt_part_tree to the request object.
+        request.surt_part_tree = get_surt_part_tree()
+
+        # Order by surt specificity descending.
+        queryset = queryset.order_by(
+            '-protocol',
+            '-surt',
+            'policy',
+            'capture_date_start',
+            'capture_date_end',
+        )
+
+        # if no search was specified, return the default queryset.
+        if search_term == '':
+            request.surt_part_options_tuples = (
+                ('', sorted(request.surt_part_tree.keys())),
+            )
+            return queryset, MAY_HAVE_DUPLICATES
+
         match_d = SEARCH_TERM_REGEX.match(search_term).groupdict()
-        protocol = match_d['protocol']
+        # Use empty string for missing protocol to match the current rule
+        # specifications.
+        protocol = match_d['protocol'] or ''
         rest = match_d['rest']
 
         # Use the absence of a period in the substring preceeding the first
@@ -80,33 +112,45 @@ class RuleAdmin(admin.ModelAdmin):
         if '.' not in rest.split('/', 1)[0]:
             # rest is a SURT.
             surt = rest.lstrip('(')
-            # Remove any trailing comma for compatibility with rule specifications.
+            # Remove any trailing comma for compatibility with rule
+            # specifications.
             splits = surt.split(')', 1)
             splits[0] = splits[0].rstrip(',')
             surt = ')'.join(splits)
         else:
             # search_term is a URL, so get the SURT.
-            # If the search_term specifies no protocol, prepend one for uniformity
-            # of parsing.
+            # If the search_term specifies no protocol, prepend one for
+            # uniformity of parsing.
             parsed = urlcanon.parse_url(
                 search_term if protocol else 'http://{}'.format(search_term)
             )
-            # Add a trailing slash if necessary to get ensure that the resulting
-            # SURT includes it.
+            # Add a trailing slash if necessary to get ensure that the
+            # resulting SURT includes it.
             parsed.path = parsed.path or b'/'
             # Exclude the scheme and trailing comma from the SURT.
             surt = parsed.surt(with_scheme=False, trailing_comma=False)\
                          .decode('utf-8')
 
-        # Add the surt_part_tree to the request object.
-        request.surt_part_tree = get_surt_part_tree()
         # Add a list of (<current-surt-part>, <all-surt-tree-options>) tuples
         # as used by the surt-part-navigator element to the request object.
         request.surt_part_options_tuples = []
         d = request.surt_part_tree
-        for part in [protocol] + surt.split(')', 1)[0].split(','):
-            request.surt_part_options_tuples.append((part, sorted(d.keys())))
-            d = d[part]
+        request.surt_part_options_tuples.append((protocol, sorted(d.keys())))
+        d = d[protocol]
+        if surt != ')/':
+            for part in surt.split(')', 1)[0].split(','):
+                request.surt_part_options_tuples.append(
+                    (part, sorted(d.keys()))
+                )
+                if part in d:
+                    d = d[part]
+                else:
+                    # If part does not exist in the surt_part_tree dict, pop
+                    # the last options tuple so that it's subsequently,
+                    # correctly added as a next-direct-descendant selector and
+                    # do break.
+                    request.surt_part_options_tuples.pop()
+                    break
         # Add a final default-empty pair that list any available, immediate
         # descendants.
         if d:
@@ -134,17 +178,7 @@ class RuleAdmin(admin.ModelAdmin):
                 )
             )
 
-        # Order by surt specificity descending.
-        queryset = queryset.order_by(
-            '-protocol',
-            '-surt',
-            'policy',
-            'capture_date_start',
-            'capture_date_end',
-        )
-
-        may_have_duplicates = False
-        return queryset, may_have_duplicates
+        return queryset, MAY_HAVE_DUPLICATES
 
 admin.site.register(Rule, RuleAdmin)
 admin.site.register(RuleChange)

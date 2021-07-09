@@ -1,19 +1,14 @@
 
 {% load extras %}
 
-<form style="display: block; border-bottom: solid 1px #ccc; padding-left: 0;">
+<div id="surt-part-navigator">
   {% for part, options in request.surt_part_options_tuples %}
-  <select
-    name="part-{{ forloop.counter0 }}"
-    style="border-bottom: solid 4px #fff; position: relative;
-          bottom: -4px; background-color: #417690; color: #ffc;
-          cursor: pointer; font-size: 1rem; height: auto;
-          padding: 0.2rem;">
+  <select name="part-{{ forloop.counter0 }}">
     {% with is_proto=forloop.first %}
 
-    <!-- Add an initial truncate option for non-proto fields -->
-    {% if not is_proto and part != '' %}
-    <option value="truncate">&larr; TRUNCATE</option>
+    <!-- Add an initial truncate option for all fields -->
+    {% if part != '' %}
+    <option value="__TRUNCATE__">&larr; TRUNCATE</option>
     {% endif %}
 
     {% for option in options %}
@@ -31,4 +26,4 @@
   </select>
   {% endwith %}
   {% endfor %}
-</form>
+</div>

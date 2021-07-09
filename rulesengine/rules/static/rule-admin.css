@@ -1,0 +1,16 @@
+
+#surt-part-navigator {
+  border-bottom: solid 1px #ccc;
+}
+
+#surt-part-navigator > select {
+  background-color: #417690;
+  border-bottom: solid 4px #fff;
+  bottom: -4px;
+  color: #ffc;
+  cursor: pointer;
+  font-size: 1rem;
+  height: auto;
+  padding: 0.2rem;
+  position: relative;
+}
