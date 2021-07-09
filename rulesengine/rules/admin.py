@@ -98,16 +98,21 @@ class RuleAdmin(admin.ModelAdmin):
             surt = parsed.surt(with_scheme=False, trailing_comma=False)\
                          .decode('utf-8')
 
-        # Add SURT-related derivatives to the to the request object for use in
-        # the template.
+        # Add the surt_part_tree to the request object.
         request.surt_part_tree = get_surt_part_tree()
-        request.current_surt_parts = \
-            [protocol] + surt.split(')', 1)[0].split(',')
+        # Add a list of (<current-surt-part>, <all-surt-tree-options>) tuples
+        # as used by the surt-part-navigator element to the request object.
         request.surt_part_options_tuples = []
         d = request.surt_part_tree
-        for part in request.current_surt_parts:
+        for part in [protocol] + surt.split(')', 1)[0].split(','):
             request.surt_part_options_tuples.append((part, sorted(d.keys())))
             d = d[part]
+        # Add a final default-empty pair that list any available, immediate
+        # descendants.
+        if d:
+            request.surt_part_options_tuples.append(
+                ('', [''] + sorted(d.keys()))
+            )
 
         # Create a surt query for both verbatim and wildcard matches.
         surt_query = Q(surt=surt) | Q(surt=surt + '%')

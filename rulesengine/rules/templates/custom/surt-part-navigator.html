@@ -1,27 +1,34 @@
 
-<h3 style="border-bottom: solid 1px #ccc; padding-left: 0;">
+{% load extras %}
+
+<form style="display: block; border-bottom: solid 1px #ccc; padding-left: 0;">
   {% for part, options in request.surt_part_options_tuples %}
-  <select style="border-bottom: solid 4px #fff; position: relative;
-                 bottom: -4px; background-color: #417690; color: #ffc;
-                 cursor: pointer; font-size: 1rem; height: auto;
-                 padding: 0.2rem;">
+  <select
+    name="part-{{ forloop.counter0 }}"
+    style="border-bottom: solid 4px #fff; position: relative;
+          bottom: -4px; background-color: #417690; color: #ffc;
+          cursor: pointer; font-size: 1rem; height: auto;
+          padding: 0.2rem;">
     {% with is_proto=forloop.first %}
+
+    <!-- Add an initial truncate option for non-proto fields -->
+    {% if not is_proto and part != '' %}
+    <option value="truncate">&larr; TRUNCATE</option>
+    {% endif %}
+
     {% for option in options %}
-      {% if option == part %}
-        {% if is_proto %}
-    <option value="{{ option }}" selected>{{ option }}://(</option>
-        {% else %}
-    <option value="{{ option }}" selected>{{ option }},</option>
-        {% endif %}
+    {% is_eq option part as selected %}
+    <option value="{{ option }}" {{ selected|yesno:"selected," }}>
+      {% if is_proto %}
+        {{ option }}://(
+      {% elif option != '' %}
+        {{ option }},
       {% else %}
-        {% if is_proto %}
-    <option value="{{ option }}">{{ option }}://(</option>
-        {% else %}
-    <option value="{{ option }}">{{ option }},</option>
-        {% endif %}
+        {{ option }}
       {% endif %}
+    </option>
     {% endfor %}
   </select>
   {% endwith %}
   {% endfor %}
-</h3>
+</form>
