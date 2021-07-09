@@ -1,8 +1,10 @@
 
 import re
+from functools import lru_cache
 
 import urlcanon
 from django.contrib import admin
+from django.db import connection
 from django.db.models import Q
 
 from .models import (
@@ -11,6 +13,44 @@ from .models import (
 )
 
 SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+)://)?(?P<rest>.*)$')
+
+# TODO - flush cache on any rule addition or modification
+@lru_cache(maxsize=1)
+def get_surt_part_tree():
+    """Return a tree-like representation of the all rule SURTs as a dict with
+    protocol and SURT part keys.
+
+    Example:
+    {
+      '': {
+        'gov': {
+          'cdc': {
+            'www2': {},
+            'www1': {},
+          },
+          'nih': {
+            'www'
+          }
+        }
+      },
+      'http': { 'gov': { ... }, ... },
+      'https': { 'gov': { ... }, ... },
+      ...
+    }
+
+    """
+    cur = connection.cursor()
+    cur.execute("select protocol, split_part(surt, ')', 1) _surt from rules_rule "
+                "group by protocol, _surt")
+    res = cur.fetchall()
+    surt_part_tree = {}
+    for protocol, surt in res:
+        d = surt_part_tree
+        for k in [protocol] + surt.split(','):
+            if k not in d:
+                d[k] = {}
+            d = d[k]
+    return surt_part_tree
 
 # Register your models here.
 class RuleAdmin(admin.ModelAdmin):
@@ -46,19 +86,28 @@ class RuleAdmin(admin.ModelAdmin):
             surt = ')'.join(splits)
         else:
             # search_term is a URL, so get the SURT.
-            # If the search_term specifies no protocol, prepend one for the same
-            # of generating the SURT. Exclude the scheme and trailing comma from
-            # the SURT.
+            # If the search_term specifies no protocol, prepend one for uniformity
+            # of parsing.
             parsed = urlcanon.parse_url(
                 search_term if protocol else 'http://{}'.format(search_term)
             )
             # Add a trailing slash if necessary to get ensure that the resulting
             # SURT includes it.
             parsed.path = parsed.path or b'/'
-            surt = parsed.surt(
-                with_scheme=False,
-                trailing_comma=False
-            ).decode('utf-8')
+            # Exclude the scheme and trailing comma from the SURT.
+            surt = parsed.surt(with_scheme=False, trailing_comma=False)\
+                         .decode('utf-8')
+
+        # Add SURT-related derivatives to the to the request object for use in
+        # the template.
+        request.surt_part_tree = get_surt_part_tree()
+        request.current_surt_parts = \
+            [protocol] + surt.split(')', 1)[0].split(',')
+        request.surt_part_options_tuples = []
+        d = request.surt_part_tree
+        for part in request.current_surt_parts:
+            request.surt_part_options_tuples.append((part, sorted(d.keys())))
+            d = d[part]
 
         # Create a surt query for both verbatim and wildcard matches.
         surt_query = Q(surt=surt) | Q(surt=surt + '%')

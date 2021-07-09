@@ -1,0 +1,14 @@
+
+<h3>
+  {% for part, options in request.surt_part_options_tuples %}
+  <select>
+    {% for option in options %}
+    {% if option == part %}
+    <option value="{{ option }}" selected>{{ option }}</option>
+    {% else %}
+    <option value="{{ option }}">{{ option }}</option>
+    {% endif %}
+    {% endfor %}
+  </select>
+  {% endfor %}
+</h3>
