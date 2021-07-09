@@ -157,11 +157,13 @@ class RuleAdmin(admin.ModelAdmin):
         # if ')/' not in surt:
         #     surt_query |= Q(surt=surt + ')/')
         #     surt_query |= Q(surt=surt + ')/%')
-        # # Match on any prefix part with a trailing wildcard.
-        # query_parts = []
-        # for part in surt.split(','):
-        #     query_parts.append(part)
-        #     surt_query |= Q(surt=','.join(query_parts) + '%')
+
+        # Match on any prefix part with a trailing wildcard.
+        surt_query |= Q(surt='%')
+        query_parts = []
+        for part in surt.split(','):
+            query_parts.append(part)
+            surt_query |= Q(surt=','.join(query_parts) + '%')
 
         return surt_query
 
@@ -213,11 +215,8 @@ class RuleAdmin(admin.ModelAdmin):
             # - rules that specify this protocol and match the surt query.
             protocol_lower = protocol.lower()
             queryset = queryset.filter(
-                (Q(protocol=protocol_lower) & Q(surt='%'))
-                | (
-                    (Q(protocol__isnull=True) | Q(protocol=protocol_lower))
-                    & surt_query
-                )
+                (Q(protocol__isnull=True) | Q(protocol=protocol_lower))
+                & surt_query
             )
 
         return queryset, MAY_HAVE_DUPLICATES
