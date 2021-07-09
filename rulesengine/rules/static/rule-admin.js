@@ -23,7 +23,6 @@ function getSurtNavChangeHandler(surtNavEl) {
       + selectEls.slice(1, partIdx + 1)
                   .map(el => el.value)
                   .join(',')
-      + ")/"
     )
     window.location.search = "?q=" + surt
   })
