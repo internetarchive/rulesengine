@@ -1,7 +1,10 @@
 
-<h3>
+<h3 style="border-bottom: solid 1px #ccc; padding-left: 0;">
   {% for part, options in request.surt_part_options_tuples %}
-  <select>
+  <select style="border-bottom: solid 4px #fff; position: relative;
+                 bottom: -4px; background-color: #417690; color: #ffc;
+                 cursor: pointer; font-size: 1rem; height: auto;
+                 padding: 0.2rem;">
     {% for option in options %}
     {% if option == part %}
     <option value="{{ option }}" selected>{{ option }}</option>
