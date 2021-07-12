@@ -140,33 +140,6 @@ class RuleAdmin(admin.ModelAdmin):
 
         return surt_part_options_tuples
 
-    def _build_surt_query(self, surt):
-        # Match on any rule for which this surt is prefix of its surt.
-        # Maybe this is too loose a match and should be behind a flag?
-        surt_query = Q(surt__startswith=surt)
-
-        # Note that the above prefix match replaces the following logic with
-        # maybe we want to reinstate with the looser, prefix match behind a
-        # flag?
-        #
-        # # Match on verbatim surt or verbatim surt with trailing wildcard.
-        # surt_query = Q(surt=surt) | Q(surt=surt + '%')
-
-        # # If SURT not closed, match on closed version and closed version with
-        # # trailing wildcard.
-        # if ')/' not in surt:
-        #     surt_query |= Q(surt=surt + ')/')
-        #     surt_query |= Q(surt=surt + ')/%')
-
-        # Match on any prefix part with a trailing wildcard.
-        surt_query |= Q(surt='%')
-        query_parts = []
-        for part in surt.split(','):
-            query_parts.append(part)
-            surt_query |= Q(surt=','.join(query_parts) + '%')
-
-        return surt_query
-
     def changelist_view(self, request, extra_context=None):
         """Adapted from: https://stackoverflow.com/a/8494985
         Pop custom URL args out of the request and put them in extra_context
@@ -217,12 +190,24 @@ class RuleAdmin(admin.ModelAdmin):
             self._get_surt_part_options_tuples(surt_part_tree, protocol, surt)
 
         # Create a surt query for both verbatim and wildcard matches.
-        surt_query = self._build_surt_query(surt)
+        if self.custom_search_fields['type'][0] == 'Match':
+            queryset = queryset.extra(where=("'{}' LIKE surt".format(surt),))
+        else:
+            # Match on any rule for which this surt is prefix of its surt.
+            # Maybe this is too loose a match and should be behind a flag?
+            surt_query = Q(surt__startswith=surt)
+            # Match on any prefix part with a trailing wildcard.
+            surt_query |= Q(surt='%')
+            query_parts = []
+            for part in surt.split(','):
+                query_parts.append(part)
+                surt_query |= Q(surt=','.join(query_parts) + '%')
+            queryset = queryset.filter(surt_query)
 
         if protocol is None:
             # Protocol was not specified, so search for rules with a similarly
             # unspecified protocol and matching surt.
-            queryset = queryset.filter(Q(protocol=None) & surt_query)
+            queryset = queryset.filter(Q(protocol=None))
         else:
             # Protocol was specified, so search for both:
             # - rules that specify this protocol and a wildcard surt (i.e. '%')
@@ -230,7 +215,6 @@ class RuleAdmin(admin.ModelAdmin):
             protocol_lower = protocol.lower()
             queryset = queryset.filter(
                 (Q(protocol__isnull=True) | Q(protocol=protocol_lower))
-                & surt_query
             )
 
         return queryset, MAY_HAVE_DUPLICATES
