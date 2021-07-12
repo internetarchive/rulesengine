@@ -40,8 +40,8 @@ def get_surt_part_tree():
 
     """
     cur = connection.cursor()
-    cur.execute("select protocol, split_part(surt, ')', 1) _surt from rules_rule "
-                "group by protocol, _surt")
+    cur.execute("select protocol, split_part(surt, ')', 1) _surt from "
+                "rules_rule group by protocol, _surt")
     res = cur.fetchall()
     surt_part_tree = {}
     for protocol, surt in res:

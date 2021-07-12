@@ -7,7 +7,7 @@ function getSurtNavChangeHandler(surtNavEl) {
   surtNavEl.addEventListener("change", e => {
     const el = e.target
     let partIdx = parseInt(el.name.split('-')[1])
-    if (el.value === "__TRUNCATE__") {
+    if (el.value === "") {
       partIdx -= 1
     }
     // Clear search string altogether if truncate was selected in
