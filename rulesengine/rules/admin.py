@@ -167,6 +167,20 @@ class RuleAdmin(admin.ModelAdmin):
 
         return surt_query
 
+    def changelist_view(self, request, extra_context=None):
+        """Adapted from: https://stackoverflow.com/a/8494985
+        Pop custom URL args out of the request and put them in extra_context
+        to prevent Django from throwing a fit and redirecting to ...?e=1
+        """
+        self.custom_search_fields = {}
+        request.GET._mutable=True
+        for k in tuple(request.GET.keys()):
+            if k != 'q':
+                # Note that the pop() method return a list.
+                self.custom_search_fields[k] = request.GET.pop(k)
+        request.GET_mutable=False
+        return super().changelist_view(request)
+
     def get_search_results(self, request, queryset, search_term):
         """Define a custom search handler that automatically converts a
         URL input to a SURT.

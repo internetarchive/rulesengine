@@ -1,4 +1,8 @@
 
+label[for="searchbar"] > a {
+  margin-right: 0.5em;
+}
+
 #surt-part-navigator {
   border-bottom: solid 1px #ccc;
   /* Set same margin-right as built-in action element */
