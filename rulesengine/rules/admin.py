@@ -108,7 +108,10 @@ class RuleAdmin(admin.ModelAdmin):
         """Define a custom init to add an custom_context property.
         """
         super().__init__(*args, **kwargs)
-        self.custom_context = {}
+        self.custom_context = {
+            'search_errors': [],
+            'search_warnings': [],
+        }
 
     def _parse_search_term(self, search_term):
         """Parse the search term and return a (<protocol>, <surt>) tuple, where
@@ -182,6 +185,10 @@ class RuleAdmin(admin.ModelAdmin):
         Pop custom URL args out of the request and put them in custom_context
         to prevent Django from throwing a fit and redirecting to ...?e=1
         """
+        # Take this opportunity to clear any previous search errors/warnings.
+        self.custom_context['search_errors'].clear()
+        self.custom_context['search_warnings'].clear()
+        # Pop the custom search params from GET.
         request.GET._mutable=True
         for k, parser in self.custom_search_param_parser_map.items():
             value = request.GET.pop(k)[0] if k in request.GET else None
@@ -233,11 +240,10 @@ class RuleAdmin(admin.ModelAdmin):
         try:
             protocol, surt = self._parse_search_term(search_term)
         except ValueError:
-            self.custom_context['search_error'] = \
+            self.custom_context['search_errors'].append(
                 '"{}" is not a valid URL or SURT'.format(search_term)
+            )
             return queryset, MAY_HAVE_DUPLICATES
-        else:
-            self.custom_context['search_error'] = None
 
         # Get the surt nav option tuples.
         request.surt_part_options_tuples = \
@@ -254,8 +260,13 @@ class RuleAdmin(admin.ModelAdmin):
             ))
             # Apply the capture date filter if specified.
             capture_dt = self.custom_context['capture_date']
-            if capture_dt is not None:
-                capture_time = self.custom_context['capture_time']
+            capture_time = self.custom_context['capture_time']
+            if capture_dt is None:
+                if capture_time is not None:
+                    self.custom_context['search_warnings'].append(
+                        'Can not match time without a date'
+                    )
+            else:
                 if capture_time is not None:
                     # Extend capture_dt with the capture_time.
                     capture_dt = capture_dt.replace(

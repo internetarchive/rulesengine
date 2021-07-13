@@ -22,9 +22,6 @@
     {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}"/>{% endif %}
     {% endfor %}
   </div>
-  {% if cl.custom_context.search_error %}
-  <div id="search-error">{{ cl.custom_context.search_error }}</div>
-  {% endif %}
   {% if cl.custom_context.type == 'Match' %}
   <div id="advanced-match">
     <label for="capture_date">Capture Time:</label>
@@ -34,5 +31,11 @@
            value="{{ cl.custom_context.capture_time_orig }}" />
   </div>
   {% endif %}
+  {% for warn in cl.custom_context.search_warnings %}
+  <div id="search-warning">{{ warn }}</div>
+  {% endfor %}
+  {% for error in cl.custom_context.search_errors %}
+  <div id="search-error">{{ error }}</div>
+  {% endfor %}
 </form></div>
 {% endif %}
