@@ -1,5 +1,6 @@
 
 import re
+from datetime import datetime
 from functools import lru_cache
 
 import urlcanon
@@ -11,6 +12,8 @@ from .models import (
     Rule,
     RuleChange
 )
+
+strptime = datetime.strptime
 
 SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+))?://(?P<rest>.*)$')
 
@@ -52,6 +55,17 @@ def get_surt_part_tree():
             d = d[k]
     return surt_part_tree
 
+def safe_parse(parser):
+    """Return a function that attempts to apply a parser and returns None in
+    the event of any exception.
+    """
+    def f(x):
+        try:
+            return parser(x)
+        except:
+            return None
+    return f
+
 # Register your models here.
 class RuleAdmin(admin.ModelAdmin):
     list_display = (
@@ -77,7 +91,11 @@ class RuleAdmin(admin.ModelAdmin):
         "environment",
     )
     search_fields = ("surt",)
-    custom_search_param_keys = ('type',)
+    custom_search_param_parser_map = {
+        'type': safe_parse(str),
+        'capture_date': safe_parse(lambda x: strptime(x, '%Y-%m-%d')),
+        'capture_time': safe_parse(lambda x: strptime(x, '%H:%M')),
+    }
 
     # Rope in the custom CSS and JS.
     class Media:
@@ -87,10 +105,10 @@ class RuleAdmin(admin.ModelAdmin):
         js = ("rule-admin.js",)
 
     def __init__(self, *args, **kwargs):
-        """Define a custom init to add an extra_context property.
+        """Define a custom init to add an custom_context property.
         """
         super().__init__(*args, **kwargs)
-        self.extra_context = {}
+        self.custom_context = {}
 
     def _parse_search_term(self, search_term):
         """Parse the search term and return a (<protocol>, <surt>) tuple, where
@@ -161,16 +179,17 @@ class RuleAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         """Adapted from: https://stackoverflow.com/a/8494985
-        Pop custom URL args out of the request and put them in extra_context
+        Pop custom URL args out of the request and put them in custom_context
         to prevent Django from throwing a fit and redirecting to ...?e=1
         """
-        self.custom_search_params = {}
         request.GET._mutable=True
-        for k in self.custom_search_param_keys:
-            if k in request.GET:
-                self.custom_search_params[k] = request.GET.pop(k)
+        for k, parser in self.custom_search_param_parser_map.items():
+            value = request.GET.pop(k)[0] if k in request.GET else None
+            # Save the original string.
+            self.custom_context['{}_orig'.format(k)] = value
+            # Parse and save
+            self.custom_context[k] = parser(value)
         request.GET_mutable=False
-
         response = super().changelist_view(
             request,
             extra_context=extra_context
@@ -179,7 +198,7 @@ class RuleAdmin(admin.ModelAdmin):
         # it available in the template (e.g. search form error) because no
         # amount of messing around with the Django-native extra_context
         # argument seems to work.
-        response.context_data['cl'].extra_context = self.extra_context
+        response.context_data['cl'].custom_context = self.custom_context
         return response
 
     def get_search_results(self, request, queryset, search_term):
@@ -214,20 +233,41 @@ class RuleAdmin(admin.ModelAdmin):
         try:
             protocol, surt = self._parse_search_term(search_term)
         except ValueError:
-            self.extra_context['search_error'] = \
+            self.custom_context['search_error'] = \
                 '"{}" is not a valid URL or SURT'.format(search_term)
             return queryset, MAY_HAVE_DUPLICATES
         else:
-            self.extra_context['search_error'] = None
+            self.custom_context['search_error'] = None
 
         # Get the surt nav option tuples.
         request.surt_part_options_tuples = \
             self._get_surt_part_options_tuples(surt_part_tree, protocol, surt)
 
+        # In serious stream-of-consciousness coding territory here....should
+        # definitely break this stuff up. lol.... lol...
+
         # Create a surt query for both verbatim and wildcard matches.
-        if ('type' in self.custom_search_params
-            and self.custom_search_params['type'][0] == 'Match'):
-            queryset = queryset.extra(where=("'{}' LIKE surt".format(surt),))
+        if self.custom_context['type'] == 'Match':
+            # Match the SURT query to rule surt patterns.
+            queryset = queryset.extra(where=(
+                "'{0}' LIKE surt AND '{0}' NOT LIKE neg_surt".format(surt),
+            ))
+            # Apply the capture date filter if specified.
+            capture_dt = self.custom_context['capture_date']
+            if capture_dt is not None:
+                capture_time = self.custom_context['capture_time']
+                if capture_time is not None:
+                    # Extend capture_dt with the capture_time.
+                    capture_dt = capture_dt.replace(
+                        hour=capture_time.hour,
+                        minute=capture_time.minute
+                    )
+                queryset = queryset.filter(
+                    (Q(capture_date_start__isnull=True)
+                     | Q(capture_date_start__lte=capture_dt))
+                    & (Q(capture_date_end__isnull=True)
+                       | Q(capture_date_end__gte=capture_dt))
+                )
         else:
             # Match on any rule for which this surt is prefix of its surt.
             # Maybe this is too loose a match and should be behind a flag?

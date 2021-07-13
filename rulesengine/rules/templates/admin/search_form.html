@@ -8,8 +8,13 @@
       </a>
     </label>
     <input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" autofocus />
+    {% if cl.custom_context.type == 'Match' %}
+    <input type="submit" name="type" value="{% trans 'Match' %}" />
+    <input type="submit" value="{% trans 'Search' %}" />
+    {% else %}
     <input type="submit" value="{% trans 'Search' %}" />
     <input type="submit" name="type" value="{% trans 'Match' %}" />
+    {% endif %}
     {% if show_result_count %}
     <span class="small quiet">{% blocktrans count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktrans %} (<a href="?{% if cl.is_popup %}_popup=1{% endif %}">{% if cl.show_full_result_count %}{% blocktrans with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktrans %}{% else %}{% trans "Show all" %}{% endif %}</a>)</span>
     {% endif %}
@@ -17,8 +22,17 @@
     {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}"/>{% endif %}
     {% endfor %}
   </div>
-  {% if cl.extra_context.search_error %}
-  <div id="search-error">{{ cl.extra_context.search_error }}</div>
+  {% if cl.custom_context.search_error %}
+  <div id="search-error">{{ cl.custom_context.search_error }}</div>
+  {% endif %}
+  {% if cl.custom_context.type == 'Match' %}
+  <div id="advanced-match">
+    <label for="capture_date">Capture Time:</label>
+    <input type="date" name="capture_date"
+           value="{{ cl.custom_context.capture_date_orig }}"/>
+    <input type="time" name="capture_time"
+           value="{{ cl.custom_context.capture_time_orig }}" />
+  </div>
   {% endif %}
 </form></div>
 {% endif %}
