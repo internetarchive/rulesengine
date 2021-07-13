@@ -24,7 +24,7 @@ function getSurtNavChangeHandler(surtNavEl) {
                   .map(el => el.value)
                   .join(',')
     )
-    window.location.search = "?q=" + surt + "&type=Search"
+    window.location.search = "?q=" + surt
   })
 }
 

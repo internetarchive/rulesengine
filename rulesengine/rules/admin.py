@@ -66,6 +66,7 @@ class RuleAdmin(admin.ModelAdmin):
     )
     list_filter = ("enabled", "partner", "collection")
     search_fields = ("surt",)
+    custom_search_param_keys = ('type',)
 
     # Rope in the custom CSS and JS.
     class Media:
@@ -74,13 +75,20 @@ class RuleAdmin(admin.ModelAdmin):
         }
         js = ("rule-admin.js",)
 
+    def __init__(self, *args, **kwargs):
+        """Define a custom init to add an extra_context property.
+        """
+        super().__init__(*args, **kwargs)
+        self.extra_context = {}
+
     def _parse_search_term(self, search_term):
         """Parse the search term and return a (<protocol>, <surt>) tuple, where
         surt may be None, or raise a ValueError if parsing fails.
         """
-        match_d = SEARCH_TERM_REGEX.match(search_term).groupdict()
-        if not match_d:
+        match = SEARCH_TERM_REGEX.match(search_term)
+        if not match:
             raise ValueError
+        match_d = match.groupdict()
         # Use an empty string for an unspecified protocol to match the rule
         # specification format.
         protocol = match_d['protocol'] or ''
@@ -145,14 +153,23 @@ class RuleAdmin(admin.ModelAdmin):
         Pop custom URL args out of the request and put them in extra_context
         to prevent Django from throwing a fit and redirecting to ...?e=1
         """
-        self.custom_search_fields = {}
+        self.custom_search_params = {}
         request.GET._mutable=True
-        for k in tuple(request.GET.keys()):
-            if k != 'q':
-                # Note that the pop() method return a list.
-                self.custom_search_fields[k] = request.GET.pop(k)
+        for k in self.custom_search_param_keys:
+            if k in request.GET:
+                self.custom_search_params[k] = request.GET.pop(k)
         request.GET_mutable=False
-        return super().changelist_view(request)
+
+        response = super().changelist_view(
+            request,
+            extra_context=extra_context
+        )
+        # Attach custom context to the cl (changelist) object in order to make
+        # it available in the template (e.g. search form error) because no
+        # amount of messing around with the Django-native extra_context
+        # argument seems to work.
+        response.context_data['cl'].extra_context = self.extra_context
+        return response
 
     def get_search_results(self, request, queryset, search_term):
         """Define a custom search handler that automatically converts a
@@ -182,15 +199,23 @@ class RuleAdmin(admin.ModelAdmin):
             )
             return queryset, MAY_HAVE_DUPLICATES
 
-        # Parse the search term.
-        protocol, surt = self._parse_search_term(search_term)
+        # Attempt to parse the search term.
+        try:
+            protocol, surt = self._parse_search_term(search_term)
+        except ValueError:
+            self.extra_context['search_error'] = \
+                '"{}" is not a valid URL or SURT'.format(search_term)
+            return queryset, MAY_HAVE_DUPLICATES
+        else:
+            self.extra_context['search_error'] = None
 
         # Get the surt nav option tuples.
         request.surt_part_options_tuples = \
             self._get_surt_part_options_tuples(surt_part_tree, protocol, surt)
 
         # Create a surt query for both verbatim and wildcard matches.
-        if self.custom_search_fields['type'][0] == 'Match':
+        if ('type' in self.custom_search_params
+            and self.custom_search_params['type'][0] == 'Match'):
             queryset = queryset.extra(where=("'{}' LIKE surt".format(surt),))
         else:
             # Match on any rule for which this surt is prefix of its surt.
