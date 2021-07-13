@@ -48,3 +48,8 @@ label[for="searchbar"] > a {
 .filterable-cell:hover:after {
   color: #000;
 }
+
+#remove-filters > button {
+  padding: 0.5em;
+  cursor: pointer;
+}

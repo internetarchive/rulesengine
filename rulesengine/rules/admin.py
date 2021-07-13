@@ -62,6 +62,7 @@ class RuleAdmin(admin.ModelAdmin):
         "partner",
         "capture_date_start",
         "capture_date_end",
+        "private_comment",
         "enabled"
     )
     search_fields = ("surt",)
