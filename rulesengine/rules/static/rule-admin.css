@@ -29,3 +29,22 @@ label[for="searchbar"] > a {
   padding: 0.2rem;
   position: relative;
 }
+
+.filterable-cell {
+  cursor: pointer;
+}
+
+.filterable-cell:after {
+  content: "apply filter";
+  text-decoration: underline;
+  padding-left: 1em;
+  color: transparent;
+}
+
+.filterable-cell.active:after {
+  content: "remove filter";
+}
+
+.filterable-cell:hover:after {
+  color: #000;
+}

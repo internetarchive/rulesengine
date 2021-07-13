@@ -64,7 +64,6 @@ class RuleAdmin(admin.ModelAdmin):
         "capture_date_end",
         "enabled"
     )
-    list_filter = ("enabled", "partner", "collection")
     search_fields = ("surt",)
     custom_search_param_keys = ('type',)
 
