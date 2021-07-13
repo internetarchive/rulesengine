@@ -3,6 +3,15 @@ label[for="searchbar"] > a {
   margin-right: 0.5em;
 }
 
+#result_list th,
+#result_list td {
+  white-space: nowrap;
+}
+
+#result_list tr:hover {
+  background-color: #eee;
+}
+
 #search-error {
   background-color: #f66;
   border-radius: 4px;

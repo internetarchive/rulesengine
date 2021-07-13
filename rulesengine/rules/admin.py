@@ -56,14 +56,25 @@ def get_surt_part_tree():
 class RuleAdmin(admin.ModelAdmin):
     list_display = (
         "policy",
+        "enabled",
         "protocol",
         "surt",
+        "neg_surt",
         "collection",
         "partner",
+        "rewrite_from",
+        "rewrite_to",
+        "warc_match",
         "capture_date_start",
         "capture_date_end",
+        'retrieve_date_start',
+        'retrieve_date_end',
+        'seconds_since_capture',
+        "ip_range_start",
+        "ip_range_end",
         "private_comment",
-        "enabled"
+        "public_comment",
+        "environment",
     )
     search_fields = ("surt",)
     custom_search_param_keys = ('type',)
