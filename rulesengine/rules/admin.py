@@ -252,9 +252,9 @@ class RuleAdmin(admin.ModelAdmin):
 
         # If no surt was specified, return the default queryset.
         if not surt:
-            self.custom_context['surt_part_options_tuples'] = (
-                ('', sorted(self.custom_context['surt_part_tree'].keys())),
-            )
+            self.custom_context['surt_part_options_tuples'] = \
+                self._get_surt_part_options_tuples(
+                    surt_part_tree, protocol, None)
             return queryset, MAY_HAVE_DUPLICATES
 
         # Get the surt nav option tuples.
