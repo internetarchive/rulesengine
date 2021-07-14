@@ -267,9 +267,11 @@ class RuleAdmin(admin.ModelAdmin):
         # Create a surt query for both verbatim and wildcard matches.
         if self.custom_context['type'] == 'Match':
             # Match the SURT query to rule surt patterns.
-            queryset = queryset.extra(where=(
-                "'{0}' LIKE surt AND '{0}' NOT LIKE neg_surt".format(surt),
-            ))
+            queryset = queryset.extra(
+                where=('%s LIKE surt AND %s NOT LIKE neg_surt',),
+                params=(surt, surt)
+            )
+
             # Apply the capture date filter if specified.
             capture_dt = self.custom_context['capture_date']
             capture_time = self.custom_context['capture_time']
