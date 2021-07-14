@@ -228,8 +228,8 @@ class RuleAdmin(admin.ModelAdmin):
 
         # Order by surt specificity descending.
         queryset = queryset.order_by(
-            '-surt',
             '-protocol',
+            '-surt',
             'policy',
             'capture_date_start',
             'capture_date_end',
@@ -249,6 +249,10 @@ class RuleAdmin(admin.ModelAdmin):
                 '"{}" is not a valid URL or SURT'.format(search_term)
             )
             return queryset, MAY_HAVE_DUPLICATES
+
+        # If protocol was specified, apply the filter.
+        if protocol != '':
+            queryset = queryset.filter(Q(protocol__in=('', protocol.lower())))
 
         # If no surt was specified, return the default queryset.
         if not surt:
@@ -304,10 +308,6 @@ class RuleAdmin(admin.ModelAdmin):
                 query_parts.append(part)
                 surt_query |= Q(surt=','.join(query_parts) + '%')
             queryset = queryset.filter(surt_query)
-
-        if protocol != '':
-            # Match both the specified and NULL protocol.
-            queryset = queryset.filter(Q(protocol__in=('', protocol.lower())))
 
         return queryset, MAY_HAVE_DUPLICATES
 

@@ -6,8 +6,8 @@
   <select name="part-{{ forloop.counter0 }}">
     {% with is_proto=forloop.first %}
 
-    <!-- Add an initial truncate option for all fields -->
-    {% if part != '' %}
+    <!-- Add an initial truncate option for all non-protocol fields -->
+    {% if not forloop.first and part != '' %}
     <option value=""></option>
     {% endif %}
 
