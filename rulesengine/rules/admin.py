@@ -227,12 +227,10 @@ class RuleAdmin(admin.ModelAdmin):
         self.custom_context['surt_part_tree'] = surt_part_tree
 
         # Order by surt specificity descending.
-        queryset = queryset.order_by(
-            '-protocol',
-            '-surt',
-            'policy',
-            'capture_date_start',
-            'capture_date_end',
+        queryset = queryset.extra(
+            select={'surt_is_wildcard': "surt=%s"},
+            select_params=('%',),
+            order_by=['surt_is_wildcard']
         )
 
         # If no search was specified, return the default queryset.
