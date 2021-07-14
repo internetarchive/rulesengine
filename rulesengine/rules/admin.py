@@ -1,3 +1,9 @@
+"""
+TODO - Error URLs
+
+http://rulesengine-local:8080/admin/rules/rule/?q=%3A%2F%2F(com%2Cyoutube)%2Fwatch%3Fv%3Dnz2x22z8en4%26feature%3Drelated%25&type=Match
+
+"""
 
 import re
 from datetime import datetime
@@ -15,7 +21,7 @@ from .models import (
 
 strptime = datetime.strptime
 
-SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+))?://(?P<rest>.*)$')
+SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+)?://)?(?P<rest>.*)$')
 
 # TODO - flush cache on any rule addition or modification
 @lru_cache(maxsize=1)
@@ -161,7 +167,7 @@ class RuleAdmin(admin.ModelAdmin):
         # Always include the protocol selector.
         surt_part_options_tuples.append((protocol, sorted(d.keys())))
         d = d[protocol]
-        if surt != ')/':
+        if surt is not None and surt != ')/':
             for part in surt.split(')', 1)[0].split(','):
                 surt_part_options_tuples.append((part, sorted(d.keys())))
                 if part in d:
@@ -218,22 +224,21 @@ class RuleAdmin(admin.ModelAdmin):
 
         # Add the surt_part_tree to the request object.
         surt_part_tree = get_surt_part_tree()
-        request.surt_part_tree = surt_part_tree
+        self.custom_context['surt_part_tree'] = surt_part_tree
 
         # Order by surt specificity descending.
         queryset = queryset.order_by(
-            '-protocol',
             '-surt',
+            '-protocol',
             'policy',
             'capture_date_start',
             'capture_date_end',
         )
 
-        # if no search was specified, return the default queryset.
+        # If no search was specified, return the default queryset.
         if search_term == '':
-            request.surt_part_options_tuples = (
-                ('', sorted(request.surt_part_tree.keys())),
-            )
+            self.custom_context['surt_part_options_tuples'] = \
+                self._get_surt_part_options_tuples(surt_part_tree, '', None)
             return queryset, MAY_HAVE_DUPLICATES
 
         # Attempt to parse the search term.
@@ -245,8 +250,15 @@ class RuleAdmin(admin.ModelAdmin):
             )
             return queryset, MAY_HAVE_DUPLICATES
 
+        # If no surt was specified, return the default queryset.
+        if not surt:
+            self.custom_context['surt_part_options_tuples'] = (
+                ('', sorted(self.custom_context['surt_part_tree'].keys())),
+            )
+            return queryset, MAY_HAVE_DUPLICATES
+
         # Get the surt nav option tuples.
-        request.surt_part_options_tuples = \
+        self.custom_context['surt_part_options_tuples'] = \
             self._get_surt_part_options_tuples(surt_part_tree, protocol, surt)
 
         # In serious stream-of-consciousness coding territory here....should
@@ -291,18 +303,9 @@ class RuleAdmin(admin.ModelAdmin):
                 surt_query |= Q(surt=','.join(query_parts) + '%')
             queryset = queryset.filter(surt_query)
 
-        if protocol is None:
-            # Protocol was not specified, so search for rules with a similarly
-            # unspecified protocol and matching surt.
-            queryset = queryset.filter(Q(protocol=None))
-        else:
-            # Protocol was specified, so search for both:
-            # - rules that specify this protocol and a wildcard surt (i.e. '%')
-            # - rules that specify this protocol and match the surt query.
-            protocol_lower = protocol.lower()
-            queryset = queryset.filter(
-                (Q(protocol__isnull=True) | Q(protocol=protocol_lower))
-            )
+        if protocol != '':
+            # Match both the specified and NULL protocol.
+            queryset = queryset.filter(Q(protocol__in=('', protocol.lower())))
 
         return queryset, MAY_HAVE_DUPLICATES
 

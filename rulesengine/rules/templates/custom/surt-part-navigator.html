@@ -2,7 +2,7 @@
 {% load extras %}
 
 <div id="surt-part-navigator">
-  {% for part, options in request.surt_part_options_tuples %}
+  {% for part, options in cl.custom_context.surt_part_options_tuples %}
   <select name="part-{{ forloop.counter0 }}">
     {% with is_proto=forloop.first %}
 
