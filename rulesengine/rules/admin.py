@@ -226,11 +226,13 @@ class RuleAdmin(admin.ModelAdmin):
         surt_part_tree = get_surt_part_tree()
         self.custom_context['surt_part_tree'] = surt_part_tree
 
-
         # Apply ordering, with prioritized SURT-specificity descending.
         order_by_strs = []
-        # Get any specified ordering.
-        if 'o' in request.GET:
+        # Get Django's ordering specification.
+        if 'o' not in request.GET:
+            # Use the default model ordering.
+            order_by_strs.extend(self.model._meta.ordering)
+        else:
             # The "o" param is a dot-separated ordered list of
             # 1-indexed self.list_display offsets with an optional leading
             # "-" to indicate descending order.
