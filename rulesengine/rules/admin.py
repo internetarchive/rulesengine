@@ -226,11 +226,23 @@ class RuleAdmin(admin.ModelAdmin):
         surt_part_tree = get_surt_part_tree()
         self.custom_context['surt_part_tree'] = surt_part_tree
 
-        # Order by surt specificity descending.
+
+        # Apply ordering, with prioritized SURT-specificity descending.
+        order_by_strs = []
+        # Get any specified ordering.
+        if 'o' in request.GET:
+            # The "o" param is a dot-separated ordered list of
+            # 1-indexed self.list_display offsets with an optional leading
+            # "-" to indicate descending order.
+            for i in (int(x) for x in request.GET['o'].split('.')):
+                order_by_strs.append('{}{}'.format(
+                    '-' if i < 0 else '',
+                    self.list_display[abs(i) - 1]
+                ))
         queryset = queryset.extra(
             select={'surt_is_wildcard': "surt=%s"},
             select_params=('%',),
-            order_by=['surt_is_wildcard']
+            order_by=['surt_is_wildcard'] + order_by_strs
         )
 
         # If no search was specified, return the default queryset.
