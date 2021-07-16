@@ -3,6 +3,7 @@ chardet==3.0.4
 coverage==4.5.1
 Django==2.0.8
 django-extensions==2.1.0
+djangoql==0.15.1
 flake8==3.5.0
 idna==2.7
 ipaddr==2.2.0
