@@ -28,12 +28,6 @@ from .models import (
     RuleChange
 )
 
-# Monkeypatch an explain() method onto QuerySet to prevent djangoql from
-# raising an error when it tries to invoke it.
-# https://github.com/ivelum/djangoql/issues/79
-from django.db.models import QuerySet
-setattr(QuerySet, 'explain', lambda self: None)
-
 strptime = datetime.strptime
 
 SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+)?://)?(?P<rest>.*)$')
