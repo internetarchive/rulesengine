@@ -1,7 +1,22 @@
 
-#result_list th,
-#result_list td {
+.field-policy,
+.field-capture_date_start,
+.field-capture_date_end {
   white-space: nowrap;
+}
+
+#changelist-form .results {
+  position: relative;
+  height: 60vh;
+  overflow: auto;
+}
+
+#result_list {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
 
 #result_list tr:hover {

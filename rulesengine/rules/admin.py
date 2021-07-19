@@ -154,6 +154,8 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "neg_surt",
         "collection",
         "partner",
+        "private_comment",
+        "public_comment",
         "rewrite_from",
         "rewrite_to",
         "warc_match",
@@ -164,8 +166,6 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         'seconds_since_capture',
         "ip_range_start",
         "ip_range_end",
-        "private_comment",
-        "public_comment",
         "environment",
     )
 
@@ -259,19 +259,15 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         get_next_keys = \
             lambda dicts: sorted(set(chain(*(tuple(d.keys()) for d in dicts))))
 
-        get_next_dicts = \
-            lambda dicts, part: [d[part] for d in dicts if part in d]
+        get_next_dicts = lambda dicts, part: [
+            d[part] for d in dicts if part in d and d[part]
+        ]
 
         if surt:
             for part in surt.split(')', 1)[0].split(','):
                 surt_part_options_tuples.append((part, get_next_keys(dicts)))
                 dicts = get_next_dicts(dicts, part)
                 if not dicts:
-                    # If part does not exist in any surt_part_tree dict, pop
-                    # the last options tuple so that it's subsequently,
-                    # correctly added as a next-direct-descendant selector and
-                    # do break.
-                    surt_part_options_tuples.pop()
                     break
 
         # Add a final default-empty pair that list any available, immediate
