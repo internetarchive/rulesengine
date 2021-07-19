@@ -1,13 +1,4 @@
 
-label[for="searchbar"] > a,
-label[for="capture_date"] {
-  margin-right: 0.5em;
-}
-
-#advanced-match {
-  margin-top: 1em;
-}
-
 #result_list th,
 #result_list td {
   white-space: nowrap;
@@ -15,24 +6,6 @@ label[for="capture_date"] {
 
 #result_list tr:hover {
   background-color: #eee;
-}
-
-#search-warning,
-#search-error {
-  border-radius: 4px;
-  font-weight: bold;
-  margin-top: 0.5em;
-  padding: 0.5em;
-}
-
-#search-error {
-  background-color: #f66;
-  color: #fff;
-}
-
-#search-warning {
-  background-color: #f84;
-  color: #fff;
 }
 
 #surt-part-navigator {
@@ -49,29 +22,4 @@ label[for="capture_date"] {
   height: auto;
   padding: 0.2rem;
   position: relative;
-}
-
-.filterable-cell {
-  cursor: pointer;
-}
-
-.filterable-cell:after {
-  content: "apply filter";
-  text-decoration: underline;
-  padding-left: 1em;
-  color: transparent;
-}
-
-.filterable-cell.active:after {
-  content: "remove filter";
-  color: rgba(0, 0, 0, 0.3);
-}
-
-.filterable-cell:hover:after {
-  color: #000;
-}
-
-#remove-filters > button {
-  padding: 0.5em;
-  cursor: pointer;
 }
