@@ -19,8 +19,9 @@
   bottom: 0;
 }
 
-#result_list tr:hover {
-  background-color: #eee;
+#result_list > thead > tr > th {
+  position: relative;
+  padding-right: 1em;
 }
 
 #surt-part-navigator {
