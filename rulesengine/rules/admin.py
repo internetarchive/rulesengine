@@ -1,12 +1,5 @@
-"""
-TODO - Error URLs
-
-http://rulesengine-local:8080/admin/rules/rule/?q=%3A%2F%2F(com%2Cyoutube)%2Fwatch%3Fv%3Dnz2x22z8en4%26feature%3Drelated%25&type=Match
-
-"""
 
 import re
-from datetime import datetime
 from functools import lru_cache
 from itertools import chain
 
@@ -34,11 +27,6 @@ from .models import (
     RuleChange
 )
 
-strptime = datetime.strptime
-
-SEARCH_TERM_REGEX = re.compile(r'^(?:(?P<protocol>\w+)?://)?(?P<rest>.*)$')
-
-# TODO - flush cache on any rule addition or modification
 @lru_cache(maxsize=1)
 def get_surt_part_tree():
     """Return a tree-like representation of the all rule SURTs as a dict with
@@ -75,6 +63,14 @@ def get_surt_part_tree():
                 d[k] = {}
             d = d[k]
     return surt_part_tree
+
+def purge_rule_data_caches(func):
+    """Decorator to purge any cached rule data on function invocation.
+    """
+    def f(*args, **kwargs):
+        get_surt_part_tree.cache_clear()
+        return func(*args, **kwargs)
+    return f
 
 class URLField(StrField):
     """Define a custom djangoql field to support searching for a SURT by URL.
@@ -169,6 +165,11 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "environment",
     )
 
+    # Set save_as=True to present a "Save as new" button instead of
+    # "Save and add another" on the change form which provides the duplicate/
+    # copy-from/clone functionality that some WAs have expressed a need for.
+    save_as = True
+
     djangoql_schema = RuleQLSchema
 
     # Rope in the custom CSS and JS.
@@ -183,6 +184,14 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         """
         super().__init__(*args, **kwargs)
         self.custom_context = {}
+
+    @purge_rule_data_caches
+    def save_model(self, *args, **kwargs):
+        return super().save_model(*args, **kwargs)
+
+    @purge_rule_data_caches
+    def delete_model(self, *args, **kwargs):
+        return super().delete_model(*args, **kwargs)
 
     def get_search_results(self, request, queryset, search_term):
         queryset, not_uniq = super().get_search_results(
@@ -281,6 +290,11 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         # Get the default response.
         response = super().changelist_view(request, *args, **kwargs)
 
+        # Return the default response if this is not the list view.
+        if not hasattr(response, 'context_data') \
+           or 'cl' not in response.context_data:
+            return response
+
         surt_part_tree = get_surt_part_tree()
         self.custom_context['surt_part_options_tuples'] = \
             self._get_surt_part_options_tuples(
@@ -294,6 +308,7 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         # amount of messing around with the Django-native extra_context
         # argument seems to work.
         response.context_data['cl'].custom_context = self.custom_context
+
         return response
 
 admin.site.register(Rule, RuleAdmin)
