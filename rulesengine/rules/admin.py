@@ -143,8 +143,9 @@ class RuleQLSchema(DjangoQLSchema):
 # Register your models here.
 class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = (
-        "policy",
+        "id",
         "enabled",
+        "policy",
         "protocol",
         "surt",
         "neg_surt",
@@ -165,10 +166,19 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "environment",
     )
 
+    list_editable = ('enabled',)
+
+    # Set the default ordering to surt descending to push the wildcards (i.e.
+    # "%") to the bottom, and do the same with protocol.
+    ordering = ('-surt', '-protocol')
+
     # Set save_as=True to present a "Save as new" button instead of
     # "Save and add another" on the change form which provides the duplicate/
     # copy-from/clone functionality that some WAs have expressed a need for.
     save_as = True
+
+    # Also show save buttons at the top of the change form.
+    save_on_top = True
 
     djangoql_schema = RuleQLSchema
 
