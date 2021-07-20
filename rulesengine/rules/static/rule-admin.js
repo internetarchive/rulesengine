@@ -5,12 +5,17 @@
      Helpers
    */
 
-  function calcRenderedTextWidthPx (text) {
+  function calcRenderedTextContentWidthPx (el) {
+    /* Return the unconstrained width of an element's textContent in pixels.
+    */
     const container = document.createElement("span")
-    container.textContent = text
+    container.textContent = el.textContent
+    container.style.position = "absolute"
     container.style.display = "inline-block"
     container.style.visibility = "hidden"
-    document.body.appendChild(container)
+    // Add the container as a child of the original element to ensure that
+    // it's similarly styled.
+    el.appendChild(container)
     const width = parseFloat(window.getComputedStyle(container).width)
     container.remove()
     return width
@@ -147,7 +152,7 @@
         tableEl.querySelectorAll(`tbody > tr > *:nth-child(${i+1})`)
       ).reduce(
         (acc, cellEl) =>
-          Math.max(acc, calcRenderedTextWidthPx(cellEl.textContent)),
+          Math.max(acc, calcRenderedTextContentWidthPx(cellEl)),
         0
       )
 
