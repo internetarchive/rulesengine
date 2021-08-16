@@ -18,11 +18,17 @@ from django.urls import path
 
 from rules import views
 
+# Useful Admin UI customization info:
+# https://www.webforefront.com/django/admincustomlayout.html
+admin.site.site_header = 'Rules Engine'
+admin.site.site_title = 'Rules Engine'
+admin.site.site_url = None
+admin.site.index_title = 'Rules Engine Administration'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('rules', views.RulesView.as_view()),
-    path('rules/tree/<path:surt_string>', views.tree_for_surt),
+    path('rules/tree/<path:surt_string>', views.rules_for_surt),
     path('rules/for-request', views.rules_for_request),
     path('rule/<int:pk>', views.RuleView.as_view()),
 ]

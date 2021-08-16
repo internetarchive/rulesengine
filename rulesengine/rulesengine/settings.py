@@ -26,8 +26,9 @@ SECRET_KEY = '_0x3d1g@*g1f@g(kikuj=887ljn0%bkpxuv2p@+=w+2)d*#@ze'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-        'localhost',
-        ]
+    'localhost',
+    '0.0.0.0'
+]
 
 
 # Application definition
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'djangoql',
     'rules',
 ]
 
@@ -58,7 +60,9 @@ ROOT_URLCONF = 'rulesengine.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'rules', 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -79,8 +83,13 @@ WSGI_APPLICATION = 'rulesengine.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'rulesengine',
+        'USER': 'archiveit',
+        'PASSWORD': 'archiveit',
+        'HOST': 'db.qa-archive-it.org',
+        'PORT': '5432',
+        'CONN_MAX_AGE': 0
     }
 }
 

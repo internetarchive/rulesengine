@@ -14,7 +14,7 @@ class RuleBase(models.Model):
 
     policy = models.CharField(
         help_text="""What action the Wayback Machine should take on encountering this rule""",  # noqa: E501
-        max_length=10, choices=POLICY_CHOICES)
+        max_length=15, choices=POLICY_CHOICES)
 
     # Used for surt and surt-neg rules
     surt = models.TextField(
@@ -25,6 +25,11 @@ class RuleBase(models.Model):
         verbose_name='SURT negation',
         help_text="""A SURT to use as an exception (i.e: if you want to use the rewrite_from/rewrite_to fields on a broad-scope SURT, -except- a subset, that subset would be represented here)""",  # noqa: E501
         blank=True)
+
+    # Used for protocol-specific rules
+    protocol = models.TextField(
+            help_text="""The protocol to apply this rule to.""", # noqa: E501???
+            blank=True)
 
     # Used for daterange rules
     capture_date_start = models.DateTimeField(
@@ -102,6 +107,7 @@ class RuleBase(models.Model):
         self.environment = values['environment']
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
+        self.protocol = values.get('protocol', '')
         if 'capture_date' in values:
             self.capture_date_start = parse_date(
                 values['capture_date']['start'])
@@ -135,6 +141,8 @@ class RuleBase(models.Model):
         }
         if self.neg_surt:
             values['neg_surt'] = self.neg_surt
+        if self.protocol:
+            values['protocol'] = self.protocol
         if self.seconds_since_capture:
             values['seconds_since_capture'] = self.seconds_since_capture
         if self.collection:
@@ -151,15 +159,15 @@ class RuleBase(models.Model):
             values['public_comment'] = self.public_comment
         if include_private and self.private_comment:
             values['private_comment'] = self.private_comment
-        if self.capture_date_start and self.capture_date_end:
+        if self.capture_date_start or self.capture_date_end:
             values['capture_date'] = {
-                'start': self.capture_date_start.isoformat(),
-                'end': self.capture_date_end.isoformat(),
+                'start': self.capture_date_start.isoformat() if self.capture_date_start else None,
+                'end': self.capture_date_end.isoformat() if self.capture_date_end else None,
             }
-        if self.retrieve_date_start and self.retrieve_date_end:
+        if self.retrieve_date_start or self.retrieve_date_end:
             values['retrieve_date'] = {
-                'start': self.retrieve_date_start.isoformat(),
-                'end': self.retrieve_date_end.isoformat(),
+                'start': self.retrieve_date_start.isoformat() if self.retrieve_date_start else None,
+                'end': self.retrieve_date_end.isoformat() if self.retrieve_date_end else None,
             }
         if self.ip_range_start and self.ip_range_end:
             values['ip_range'] = {

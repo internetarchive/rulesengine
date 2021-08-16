@@ -22,6 +22,7 @@ class RuleBaseTestCase(TestCase):
             'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,',
+            'protocol': 'http',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -48,6 +49,7 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.environment, 'prod')
         self.assertEqual(base.surt, 'https://(org,')
         self.assertEqual(base.neg_surt, 'https://(org,archive,')
+        self.assertEqual(base.protocol, 'http')
         self.assertEqual(base.capture_date_start, now)
         self.assertEqual(base.capture_date_end, now)
         self.assertEqual(base.retrieve_date_start, now)
@@ -71,6 +73,7 @@ class RuleBaseTestCase(TestCase):
             'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,',
+            'protocol': 'http',
             'seconds_since_capture': 256,
             'collection': 'Planets',
             'partner': 'Holst',
@@ -97,6 +100,7 @@ class RuleTestCase(TestCase):
             'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,api,)',
+            'protocol': 'http',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -125,6 +129,7 @@ class RuleTestCase(TestCase):
             'environment': 'prod',
             'surt': 'https://(org,',
             'neg_surt': 'https://(org,archive,api,)',
+            'protocol': 'http',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -154,6 +159,7 @@ class RuleTestCase(TestCase):
             'policy': 'block',
             'environment': 'prod',
             'surt': 'https://(org,',
+            'protocol': 'http',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),
@@ -177,6 +183,7 @@ class RuleTestCase(TestCase):
             'policy': 'block',
             'environment': 'prod',
             'surt': 'https://(org,',
+            'protocol': 'http',
             'capture_date': {
                 'start': now.isoformat(),
                 'end': now.isoformat(),

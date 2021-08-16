@@ -2,9 +2,7 @@ import timeit
 
 from django.core.management.base import BaseCommand
 
-from rules.utils.surt import Surt
-from rules.utils.tree import tree as tree_func
-from rules.views import tree_for_surt as tree_view
+from rules.views import rules_for_surt as rules_view
 
 
 class Command(BaseCommand):
@@ -16,13 +14,7 @@ class Command(BaseCommand):
         self.stdout.write('-'*80)
 
         t = timeit.Timer(
-            lambda: tree_view(None, 'http://(com,example0)/path'))
+            lambda: rules_view(None, 'com,example0)/path'))
         self.stdout.write('{:>50}  {}'.format(
-            'tree view - http://(com,example0)/path',
-            t.timeit(number=1000)))
-
-        t = timeit.Timer(
-            lambda: tree_func(Surt('http://(com,example0)/path')))
-        self.stdout.write('{:>50}  {}'.format(
-            'tree function - http://(com,example0)/path',
+            'rules view - http://(com,example0)/path',
             t.timeit(number=1000)))

@@ -9,8 +9,6 @@ from .utils.json import (
     error,
     success,
 )
-from .utils.surt import Surt
-from .utils.tree import tree
 from .utils.validators import validate_rule_json
 
 
@@ -79,39 +77,96 @@ class RuleView(SingleObjectMixin, View):
         return success({})
 
 
-def tree_for_surt(request, surt_string=None):
-    """Fetches a tree of rules for a given surt."""
-    surt = Surt(surt_string)
-    result = [rule.summary() for rule in tree(surt)]
+def rules_for_surt(request, surt_string=None):
+    """Fetches rules for a given surt."""
+    result = [rule.summary() for rule in rules_query(surt_string)]
     return success(result)
 
 
 def rules_for_request(request):
-    """Returns all rules that would apply to a warc and surt, and capture date.
+    """Returns all rules that would apply to a surt, and
+       other optional parameters.
 
-    Query string parameters
+    Query string parameters:
     surt -- The SURT to look up.
     neg-surt -- A SURT negation (e.g: surt does not match) to take
         into account.
-    collection -- A collection name to match against.
-    partner -- A partner Id to match against.
+    collection -- A collection id to match against.
+    partner -- A partner id to match against.
     capture-date -- The date the playback data was captured (ISO 8601)."""
     surt_qs = request.GET.get('surt')
+    if surt_qs is None:
+        return error('surt query string param is required', {})
     capture_date_qs = request.GET.get('capture-date')
-    if surt_qs is None or capture_date_qs is None:
-        return error('surt and capture-date query string params'
-                     ' are both required', {})
-    try:
-        capture_date = parse_date(capture_date_qs)
-    except ValueError as e:
-        return error(
-            'capture-date query string param must be '
-            'a datetime', str(e))
-    surt = Surt(surt_qs)
-    tree_result = tree(
-        surt,
-        neg_surt=request.GET.get('neg-surt'),
-        collection=request.GET.get('collection'),
-        partner=request.GET.get('partner'),
-        capture_date=capture_date)
-    return success([rule.summary() for rule in tree_result])
+    capture_date = None
+    if capture_date_qs:
+        try:
+            capture_date = parse_date(capture_date_qs)
+        except ValueError as e:
+            return error(
+                'capture-date query string param must be '
+                'a datetime', str(e))
+    rules_result = rules_query(
+            surt_qs,
+            neg_surt = request.GET.get('neg-surt'),
+            collection = request.GET.get('collection'),
+            partner = request.GET.get('partner'),
+            capture_date = capture_date)
+    return success([rule.summary() for rule in rules_result])
+
+
+def rules_query(surt_qs,enabled_only=True, include_retrieval_dates=True,
+         neg_surt=None, collection=None, partner=None,
+         capture_date=None):
+    """Retrieves rules matching surt_qs and other optional parameters.
+
+    Arguments:
+    surt_qs -- The SURT to match.
+    neg_surt -- A SURT to not match.[1]
+    collection -- Match against a partner's collection.
+    partner -- Match against a partner.
+    warc_match -- Match against a WARC filename (regex allowed).
+                  (not yet implemented)
+    capture_date -- The date of the requested capture.
+
+    Returns:
+    A QuerySet of matching rules
+    """
+
+    from datetime import (
+        datetime,
+        timezone,
+    )
+
+    from django.db.models import Q
+
+    rules_result = Rule.objects.extra(where=['%s LIKE surt'], params=[surt_qs])
+    now = datetime.now(timezone.utc)
+    filters = Q()
+    if enabled_only:
+        filters = filters & Q(enabled=True)
+    if include_retrieval_dates:
+        filters = filters & ((
+            Q(retrieve_date_end__isnull=True) |
+            Q(retrieve_date_end__gt=now)
+            ) & (
+            Q(retrieve_date_start__isnull=True) |
+            Q(retrieve_date_start__lt=now)))
+    if neg_surt is not None:
+        filters = filters & Q(neg_surt=neg_surt)
+    if collection is not None:
+        filters = filters & (
+                Q(collection=collection) |
+                Q(collection=''))
+    if partner is not None:
+        filters = filters & (
+                Q(partner=partner) |
+                Q(partner=''))
+    if capture_date is not None:
+        filters = filters & ((
+            Q(capture_date_end__isnull=True) |
+            Q(capture_date_end__gt=capture_date)
+            ) & (
+            Q(capture_date_start__isnull=True) |
+            Q(capture_date_start__lt=capture_date)))
+    return rules_result.filter(filters)

@@ -27,6 +27,7 @@ SCHEMA = {
             'enum': [choice[0] for choice in ENVIRONMENT_CHOICES]},
         'surt': {'type': 'string'},
         'neg_surt': {'type': 'string'},
+        'protocol': {'type': 'string'},
         'capture_date': {
             'type': 'object',
             'properties': {

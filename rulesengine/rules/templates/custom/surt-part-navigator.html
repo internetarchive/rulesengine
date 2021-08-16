@@ -1,0 +1,29 @@
+
+{% load extras %}
+
+<div id="surt-part-navigator">
+  {% for part, options in cl.custom_context.surt_part_options_tuples %}
+  <select name="part-{{ forloop.counter0 }}">
+    {% with is_proto=forloop.first %}
+
+    <!-- Add an initial truncate option for all non-protocol fields -->
+    {% if not forloop.first and part != '' %}
+    <option value=""></option>
+    {% endif %}
+
+    {% for option in options %}
+    {% is_eq option part as selected %}
+    <option value="{{ option }}" {{ selected|yesno:"selected," }}>
+      {% if is_proto %}
+        {{ option }}://(
+      {% elif option != '' %}
+        {{ option }},
+      {% else %}
+        {{ option }}
+      {% endif %}
+    </option>
+    {% endfor %}
+  </select>
+  {% endwith %}
+  {% endfor %}
+</div>
