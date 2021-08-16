@@ -1,5 +1,4 @@
 from urlcanon import parse_url
-#import surt
 
 
 class Surt(object):
@@ -114,7 +113,6 @@ class Surt(object):
         Returns:
         A SURT broken down into its parts.
         """
-        #return surt.surt(url)
         return cls(parse_url(url).surt().decode('utf-8'))
 
     def __str__(self):

@@ -67,5 +67,4 @@ def tree(surt, enabled_only=True, include_retrieval_dates=True,
             ) & (
             Q(capture_date_start__isnull=True) |
             Q(capture_date_start__lt=capture_date)))
-    # breakpoint()
     return Rule.objects.filter(filters)
