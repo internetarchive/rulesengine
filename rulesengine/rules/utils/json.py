@@ -1,5 +1,5 @@
 from datetime import datetime
-import ujson
+import json
 
 from django.http import HttpResponse
 
@@ -19,11 +19,11 @@ def success(obj):
     Returns:
     A Django HttpResponse including the JSON with the proper MIME type.
     """
-    return HttpResponse(ujson.dumps({
+    return HttpResponse(json.dumps({
         'status': 'success',
         'message': 'ok',
         'result': obj,
-    }, pre_encode_hook=date_renderer), content_type='application/json')
+    }, default=date_renderer), content_type='application/json')
 
 
 def error(message, obj):
@@ -43,6 +43,6 @@ def error(message, obj):
     }
     if obj is not None:
         result['result'] = obj
-    return HttpResponse(ujson.dumps(result, pre_encode_hook=date_renderer),
+    return HttpResponse(json.dumps(result, default=date_renderer),
                         content_type='application/json',
                         status=400)
