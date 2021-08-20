@@ -83,13 +83,8 @@ WSGI_APPLICATION = 'rulesengine.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'rulesengine',
-        'USER': 'archiveit',
-        'PASSWORD': 'archiveit',
-        'HOST': 'db.qa-archive-it.org',
-        'PORT': '5432',
-        'CONN_MAX_AGE': 0
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'rulesengine'
     }
 }
 
