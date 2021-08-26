@@ -50,7 +50,6 @@ fuzz-small:
 
 venv:
 	virtualenv --python `which python3` venv
-	$(PIP) install git+https://github.com/dignio/ultrajson.git
 	$(PIP) install -r requirements.txt
 
 .PHONY: clean
