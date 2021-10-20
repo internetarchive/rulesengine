@@ -28,6 +28,7 @@ SCHEMA = {
         'surt': {'type': 'string'},
         'neg_surt': {'type': 'string'},
         'protocol': {'type': 'string'},
+        'subdomain': {'type': 'string'},
         'capture_date': {
             'type': 'object',
             'properties': {

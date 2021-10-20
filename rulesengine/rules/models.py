@@ -31,6 +31,11 @@ class RuleBase(models.Model):
             help_text="""The protocol to apply this rule to.""", # noqa: E501???
             blank=True)
 
+    # Used for subdomain-specific rules, for matching subdomains like www that get canonicalized away in surt form
+    subdomain = models.TextField(
+            help_text="""The canonicalized-away subdomain, like www, to apply this rule to.""", # noqa: E501???
+            blank=True)
+
     # Used for daterange rules
     capture_date_start = models.DateTimeField(
         help_text="""The earliest date of capture to start applying this rule.""",  # noqa: E501
@@ -108,6 +113,7 @@ class RuleBase(models.Model):
         self.surt = values['surt']
         self.neg_surt = values.get('neg_surt', '')
         self.protocol = values.get('protocol', '')
+        self.subdomain = values.get('subdomain', '')
         if 'capture_date' in values:
             self.capture_date_start = parse_date(
                 values['capture_date']['start'])
@@ -143,6 +149,8 @@ class RuleBase(models.Model):
             values['neg_surt'] = self.neg_surt
         if self.protocol:
             values['protocol'] = self.protocol
+        if self.subdomain:
+            values['subdomain'] = self.subdomain
         if self.seconds_since_capture:
             values['seconds_since_capture'] = self.seconds_since_capture
         if self.collection:
