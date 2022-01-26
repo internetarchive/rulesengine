@@ -16,7 +16,7 @@ class RuleBaseTestCase(TestCase):
 
     def test_populate(self):
         now = datetime.now()
-        base = RuleBase()
+        base = Rule()
         base.populate({
             'policy': 'block',
             'environment': 'prod',
@@ -69,7 +69,7 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.enabled, True)
 
     def test_populate_no_dates(self):
-        base = RuleBase()
+        base = Rule()
         base.populate({
             'policy': 'block',
             'environment': 'prod',
