@@ -21,4 +21,4 @@ surt==0.3.0
 tldextract==2.2.0
 urlcanon==0.2
 urllib3==1.26.5
-Werkzeug==0.15.3
+Werkzeug==2.2.3
