@@ -11,6 +11,7 @@ POLICY_CHOICES = (
     ('rewrite-all', 'Rewrite playback for the entire page'),
     ('rewrite-js', 'Rewrite playback JavaScript'),
     ('rewrite-headers', 'Rewrite playback headers'),
+    ('skip-js-frame', 'Skip addition of JavaScript top and bottom inserts'),
 )
 
 ENVIRONMENT_CHOICES = (
