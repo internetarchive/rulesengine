@@ -59,7 +59,7 @@ def get_surt_part_tree():
     # SQL query for SQLite
     elif "sqlite" in db_engine:
         query = """
-            SELECT protocol, 
+            SELECT protocol,
                    substr(surt, 1, instr(surt, ')') - 1) AS _surt
             FROM rules_rule
             GROUP BY protocol, _surt

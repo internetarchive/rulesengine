@@ -7,7 +7,6 @@ from django.test import TestCase
 
 from rules.models import (
     Rule,
-    RuleBase,
     RuleChange,
 )
 
