@@ -17,11 +17,10 @@ class RulesView(View):
 
     def get(self, request, *args, **kwargs):
         """Gets a list of all rules."""
-        if request.GET.get('surt-exact') is not None:
-            rules = Rule.objects.filter(surt=request.GET.get('surt-exact'))
-        elif request.GET.get('surt-start') is not None:
-            rules = Rule.objects.filter(
-                surt__startswith=request.GET.get('surt-start'))
+        if request.GET.get("surt-exact") is not None:
+            rules = Rule.objects.filter(surt=request.GET.get("surt-exact"))
+        elif request.GET.get("surt-start") is not None:
+            rules = Rule.objects.filter(surt__startswith=request.GET.get("surt-start"))
         else:
             rules = Rule.objects.all()
         return success([rule.summary() for rule in rules])
@@ -29,13 +28,13 @@ class RulesView(View):
     def post(self, request, *args, **kwargs):
         """Creates a single rule in the collection."""
         try:
-            new_rule = json.loads(request.body.decode('utf-8'))
+            new_rule = json.loads(request.body.decode("utf-8"))
         except Exception as e:
-            return error('unable to marshal json', str(e))
+            return error("unable to marshal json", str(e))
         try:
             validate_rule_json(new_rule)
         except Exception as e:
-            return error('error validating json', str(e))
+            return error("error validating json", str(e))
         rule = Rule()
         rule.populate(new_rule)
         rule.save()
@@ -56,20 +55,22 @@ class RuleView(SingleObjectMixin, View):
         """Updates a single rule and creates a changelog entry."""
         rule = self.get_object()
         try:
-            updates = json.loads(request.body.decode('utf-8'))
+            updates = json.loads(request.body.decode("utf-8"))
         except Exception as e:
-            return error('unable to marshal json', str(e))
+            return error("unable to marshal json", str(e))
         try:
             validate_rule_json(updates)
         except Exception as e:
-            return error('error validating json', str(e))
+            return error("error validating json", str(e))
         rule.populate(updates)
         rule.save()
-        change = rule.rule_change.order_by('-id')[0]
-        return success({
-            'rule': rule.summary(),
-            'change': change.full_change(),
-        })
+        change = rule.rule_change.order_by("-id")[0]
+        return success(
+            {
+                "rule": rule.summary(),
+                "change": change.full_change(),
+            }
+        )
 
     def delete(self, request, *args, **kwargs):
         rule = self.get_object()
@@ -94,30 +95,37 @@ def rules_for_request(request):
     collection -- A collection id to match against.
     partner -- A partner id to match against.
     capture-date -- The date the playback data was captured (ISO 8601)."""
-    surt_qs = request.GET.get('surt')
+    surt_qs = request.GET.get("surt")
     if surt_qs is None:
-        return error('surt query string param is required', {})
-    capture_date_qs = request.GET.get('capture-date')
+        return error("surt query string param is required", {})
+    capture_date_qs = request.GET.get("capture-date")
     capture_date = None
     if capture_date_qs:
         try:
             capture_date = parse_date(capture_date_qs)
         except ValueError as e:
             return error(
-                'capture-date query string param must be '
-                'a datetime', str(e))
+                "capture-date query string param must be " "a datetime", str(e)
+            )
     rules_result = rules_query(
-            surt_qs,
-            neg_surt = request.GET.get('neg-surt'),
-            collection = request.GET.get('collection'),
-            partner = request.GET.get('partner'),
-            capture_date = capture_date)
+        surt_qs,
+        neg_surt=request.GET.get("neg-surt"),
+        collection=request.GET.get("collection"),
+        partner=request.GET.get("partner"),
+        capture_date=capture_date,
+    )
     return success([rule.summary() for rule in rules_result])
 
 
-def rules_query(surt_qs,enabled_only=True, include_retrieval_dates=True,
-         neg_surt=None, collection=None, partner=None,
-         capture_date=None):
+def rules_query(
+    surt_qs,
+    enabled_only=True,
+    include_retrieval_dates=True,
+    neg_surt=None,
+    collection=None,
+    partner=None,
+    capture_date=None,
+):
     """Retrieves rules matching surt_qs and other optional parameters.
 
     Arguments:
@@ -140,33 +148,28 @@ def rules_query(surt_qs,enabled_only=True, include_retrieval_dates=True,
 
     from django.db.models import Q
 
-    rules_result = Rule.objects.extra(where=['%s LIKE surt'], params=[surt_qs])
+    rules_result = Rule.objects.extra(where=["%s LIKE surt"], params=[surt_qs])
     now = datetime.now(timezone.utc)
     filters = Q()
     if enabled_only:
         filters = filters & Q(enabled=True)
     if include_retrieval_dates:
-        filters = filters & ((
-            Q(retrieve_date_end__isnull=True) |
-            Q(retrieve_date_end__gt=now)
-            ) & (
-            Q(retrieve_date_start__isnull=True) |
-            Q(retrieve_date_start__lt=now)))
+        filters = filters & (
+            (Q(retrieve_date_end__isnull=True) | Q(retrieve_date_end__gt=now))
+            & (Q(retrieve_date_start__isnull=True) | Q(retrieve_date_start__lt=now))
+        )
     if neg_surt is not None:
         filters = filters & Q(neg_surt=neg_surt)
     if collection is not None:
-        filters = filters & (
-                Q(collection=collection) |
-                Q(collection=''))
+        filters = filters & (Q(collection=collection) | Q(collection=""))
     if partner is not None:
-        filters = filters & (
-                Q(partner=partner) |
-                Q(partner=''))
+        filters = filters & (Q(partner=partner) | Q(partner=""))
     if capture_date is not None:
-        filters = filters & ((
-            Q(capture_date_end__isnull=True) |
-            Q(capture_date_end__gt=capture_date)
-            ) & (
-            Q(capture_date_start__isnull=True) |
-            Q(capture_date_start__lt=capture_date)))
+        filters = filters & (
+            (Q(capture_date_end__isnull=True) | Q(capture_date_end__gt=capture_date))
+            & (
+                Q(capture_date_start__isnull=True)
+                | Q(capture_date_start__lt=capture_date)
+            )
+        )
     return rules_result.filter(filters)

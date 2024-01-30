@@ -6,26 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0005_auto_20180810_1713'),
+        ("rules", "0005_auto_20180810_1713"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='rule',
-            name='rule_type',
+            model_name="rule",
+            name="rule_type",
         ),
         migrations.RemoveField(
-            model_name='rulechange',
-            name='rule_type',
+            model_name="rulechange",
+            name="rule_type",
         ),
         migrations.AlterField(
-            model_name='rule',
-            name='policy',
-            field=models.CharField(choices=[('block', 'Block playback'), ('message', 'Block playback with message'), ('allow', 'Allow playback'), ('auth', 'Require auth for playback'), ('rewrite-all', 'Rewrite playback for the entire page'), ('rewrite-js', 'Rewrite playback JavaScript'), ('rewrite-headers', 'Rewrite playback headers')], max_length=10),
+            model_name="rule",
+            name="policy",
+            field=models.CharField(
+                choices=[
+                    ("block", "Block playback"),
+                    ("message", "Block playback with message"),
+                    ("allow", "Allow playback"),
+                    ("auth", "Require auth for playback"),
+                    ("rewrite-all", "Rewrite playback for the entire page"),
+                    ("rewrite-js", "Rewrite playback JavaScript"),
+                    ("rewrite-headers", "Rewrite playback headers"),
+                ],
+                max_length=10,
+            ),
         ),
         migrations.AlterField(
-            model_name='rulechange',
-            name='policy',
-            field=models.CharField(choices=[('block', 'Block playback'), ('message', 'Block playback with message'), ('allow', 'Allow playback'), ('auth', 'Require auth for playback'), ('rewrite-all', 'Rewrite playback for the entire page'), ('rewrite-js', 'Rewrite playback JavaScript'), ('rewrite-headers', 'Rewrite playback headers')], max_length=10),
+            model_name="rulechange",
+            name="policy",
+            field=models.CharField(
+                choices=[
+                    ("block", "Block playback"),
+                    ("message", "Block playback with message"),
+                    ("allow", "Allow playback"),
+                    ("auth", "Require auth for playback"),
+                    ("rewrite-all", "Rewrite playback for the entire page"),
+                    ("rewrite-js", "Rewrite playback JavaScript"),
+                    ("rewrite-headers", "Rewrite playback headers"),
+                ],
+                max_length=10,
+            ),
         ),
     ]

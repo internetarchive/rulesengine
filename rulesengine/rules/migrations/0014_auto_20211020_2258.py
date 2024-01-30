@@ -6,18 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0013_auto_20210415_0009'),
+        ("rules", "0013_auto_20210415_0009"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rule',
-            name='subdomain',
-            field=models.TextField(blank=True, help_text='The canonicalized-away subdomain, like www, to apply this rule to.'),
+            model_name="rule",
+            name="subdomain",
+            field=models.TextField(
+                blank=True,
+                help_text="The canonicalized-away subdomain, like www, to apply this rule to.",
+            ),
         ),
         migrations.AddField(
-            model_name='rulechange',
-            name='subdomain',
-            field=models.TextField(blank=True, help_text='The canonicalized-away subdomain, like www, to apply this rule to.'),
+            model_name="rulechange",
+            name="subdomain",
+            field=models.TextField(
+                blank=True,
+                help_text="The canonicalized-away subdomain, like www, to apply this rule to.",
+            ),
         ),
     ]

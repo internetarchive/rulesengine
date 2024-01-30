@@ -6,18 +6,42 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0012_auto_20210323_1810'),
+        ("rules", "0012_auto_20210323_1810"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='rule',
-            name='policy',
-            field=models.CharField(choices=[('block', 'Block playback'), ('message', 'Block playback with message'), ('allow', 'Allow playback'), ('auth', 'Require auth for playback'), ('rewrite-all', 'Rewrite playback for the entire page'), ('rewrite-js', 'Rewrite playback JavaScript'), ('rewrite-headers', 'Rewrite playback headers')], help_text='What action the Wayback Machine should take on encountering this rule', max_length=15),
+            model_name="rule",
+            name="policy",
+            field=models.CharField(
+                choices=[
+                    ("block", "Block playback"),
+                    ("message", "Block playback with message"),
+                    ("allow", "Allow playback"),
+                    ("auth", "Require auth for playback"),
+                    ("rewrite-all", "Rewrite playback for the entire page"),
+                    ("rewrite-js", "Rewrite playback JavaScript"),
+                    ("rewrite-headers", "Rewrite playback headers"),
+                ],
+                help_text="What action the Wayback Machine should take on encountering this rule",
+                max_length=15,
+            ),
         ),
         migrations.AlterField(
-            model_name='rulechange',
-            name='policy',
-            field=models.CharField(choices=[('block', 'Block playback'), ('message', 'Block playback with message'), ('allow', 'Allow playback'), ('auth', 'Require auth for playback'), ('rewrite-all', 'Rewrite playback for the entire page'), ('rewrite-js', 'Rewrite playback JavaScript'), ('rewrite-headers', 'Rewrite playback headers')], help_text='What action the Wayback Machine should take on encountering this rule', max_length=15),
+            model_name="rulechange",
+            name="policy",
+            field=models.CharField(
+                choices=[
+                    ("block", "Block playback"),
+                    ("message", "Block playback with message"),
+                    ("allow", "Allow playback"),
+                    ("auth", "Require auth for playback"),
+                    ("rewrite-all", "Rewrite playback for the entire page"),
+                    ("rewrite-js", "Rewrite playback JavaScript"),
+                    ("rewrite-headers", "Rewrite playback headers"),
+                ],
+                help_text="What action the Wayback Machine should take on encountering this rule",
+                max_length=15,
+            ),
         ),
     ]

@@ -6,18 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0010_auto_20180912_1559'),
+        ("rules", "0010_auto_20180912_1559"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rule',
-            name='environment',
-            field=models.TextField(choices=[('prod', 'Production'), ('test', 'Testing/development')], default='prod', help_text="What environment the rule should apply to. Environments limit who can see the effects of a rule (e.g: QA environment means playback QA engineers can see the effects but the public can't)."),
+            model_name="rule",
+            name="environment",
+            field=models.TextField(
+                choices=[("prod", "Production"), ("test", "Testing/development")],
+                default="prod",
+                help_text="What environment the rule should apply to. Environments limit who can see the effects of a rule (e.g: QA environment means playback QA engineers can see the effects but the public can't).",
+            ),
         ),
         migrations.AddField(
-            model_name='rulechange',
-            name='environment',
-            field=models.TextField(choices=[('prod', 'Production'), ('test', 'Testing/development')], default='prod', help_text="What environment the rule should apply to. Environments limit who can see the effects of a rule (e.g: QA environment means playback QA engineers can see the effects but the public can't)."),
+            model_name="rulechange",
+            name="environment",
+            field=models.TextField(
+                choices=[("prod", "Production"), ("test", "Testing/development")],
+                default="prod",
+                help_text="What environment the rule should apply to. Environments limit who can see the effects of a rule (e.g: QA environment means playback QA engineers can see the effects but the public can't).",
+            ),
         ),
     ]

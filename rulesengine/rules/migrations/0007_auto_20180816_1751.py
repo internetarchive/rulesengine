@@ -6,66 +6,66 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0006_auto_20180813_1712'),
+        ("rules", "0006_auto_20180813_1712"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='rule',
-            old_name='date_end',
-            new_name='capture_date_end',
+            model_name="rule",
+            old_name="date_end",
+            new_name="capture_date_end",
         ),
         migrations.RenameField(
-            model_name='rule',
-            old_name='date_start',
-            new_name='capture_date_start',
+            model_name="rule",
+            old_name="date_start",
+            new_name="capture_date_start",
         ),
         migrations.RenameField(
-            model_name='rulechange',
-            old_name='date_end',
-            new_name='capture_date_end',
+            model_name="rulechange",
+            old_name="date_end",
+            new_name="capture_date_end",
         ),
         migrations.RenameField(
-            model_name='rulechange',
-            old_name='date_start',
-            new_name='capture_date_start',
+            model_name="rulechange",
+            old_name="date_start",
+            new_name="capture_date_start",
         ),
         migrations.RemoveField(
-            model_name='rule',
-            name='who',
+            model_name="rule",
+            name="who",
         ),
         migrations.RemoveField(
-            model_name='rulechange',
-            name='who',
+            model_name="rulechange",
+            name="who",
         ),
         migrations.AddField(
-            model_name='rule',
-            name='retrieve_date_end',
+            model_name="rule",
+            name="retrieve_date_end",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='rule',
-            name='retrieve_date_start',
+            model_name="rule",
+            name="retrieve_date_start",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='rule',
-            name='seconds_since_capture',
+            model_name="rule",
+            name="seconds_since_capture",
             field=models.IntegerField(null=True),
         ),
         migrations.AddField(
-            model_name='rulechange',
-            name='retrieve_date_end',
+            model_name="rulechange",
+            name="retrieve_date_end",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='rulechange',
-            name='retrieve_date_start',
+            model_name="rulechange",
+            name="retrieve_date_start",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='rulechange',
-            name='seconds_since_capture',
+            model_name="rulechange",
+            name="seconds_since_capture",
             field=models.IntegerField(null=True),
         ),
     ]

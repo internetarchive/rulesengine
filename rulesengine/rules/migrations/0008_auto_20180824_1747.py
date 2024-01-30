@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0007_auto_20180816_1751'),
+        ("rules", "0007_auto_20180816_1751"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='rule',
-            name='enabled',
+            model_name="rule",
+            name="enabled",
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
-            model_name='rulechange',
-            name='enabled',
+            model_name="rulechange",
+            name="enabled",
             field=models.BooleanField(default=True),
         ),
     ]
