@@ -41,6 +41,13 @@ class RuleBase(models.Model):
         blank=True,
     )
 
+    # Used for HTTP status code rules
+    status_code = models.IntegerField(
+        help_text="""HTTP status code, like 200, 403, 500, to apply this rule to.""",
+        null=True,
+        blank=True,
+    )
+
     # Used for daterange rules
     capture_date_start = models.DateTimeField(
         help_text="""The earliest date of capture to start applying this rule.""",  # noqa: E501
@@ -137,6 +144,7 @@ class RuleBase(models.Model):
         self.neg_surt = values.get("neg_surt", "")
         self.protocol = values.get("protocol", "")
         self.subdomain = values.get("subdomain", "")
+        self.status_code = values.get("status_code")
         if "capture_date" in values:
             self.capture_date_start = parse_date(values["capture_date"]["start"])
             self.capture_date_end = parse_date(values["capture_date"]["end"])
@@ -170,6 +178,8 @@ class RuleBase(models.Model):
             values["protocol"] = self.protocol
         if self.subdomain:
             values["subdomain"] = self.subdomain
+        if self.status_code:
+            values["status_code"] = self.status_code
         if self.seconds_since_capture:
             values["seconds_since_capture"] = self.seconds_since_capture
         if self.collection:

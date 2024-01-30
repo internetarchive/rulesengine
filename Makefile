@@ -8,6 +8,10 @@ FLAKE8=$(VENV)/bin/flake8
 run: venv rulesengine/db.sqlite3
 	$(PYTHON) rulesengine/manage.py runserver_plus 0.0.0.0:8000
 
+.PHONY: format
+format:
+	$(VENV)/bin/black .
+
 .PHONY: check
 check: lint test benchmark
 

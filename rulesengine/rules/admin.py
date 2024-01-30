@@ -169,6 +169,7 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "neg_surt",
         "collection",
         "partner",
+        "status_code",
         "private_comment",
         "public_comment",
         "rewrite_from",
