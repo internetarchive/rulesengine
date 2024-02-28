@@ -8,59 +8,123 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Rule',
+            name="Rule",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('policy', models.CharField(choices=[('b', 'block'), ('a', 'allow'), ('r', 'robots')], max_length=1)),
-                ('rule_type', models.CharField(choices=[('surt', 'SURT'), ('surt-neg', 'SURT negation'), ('regex', 'regular expression'), ('daterange', 'date range'), ('warcname', 'WARC name (or regex)')], max_length=10)),
-                ('surt', models.TextField()),
-                ('capture_start', models.DateTimeField()),
-                ('capture_end', models.DateTimeField()),
-                ('retrieval_start', models.DateTimeField()),
-                ('retrieval_end', models.DateTimeField()),
-                ('seconds_since_capture', models.IntegerField()),
-                ('who', models.CharField(max_length=50)),
-                ('private_comment', models.TextField(blank=True)),
-                ('public_comment', models.TextField(blank=True)),
-                ('enabled', models.BooleanField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "policy",
+                    models.CharField(
+                        choices=[("b", "block"), ("a", "allow"), ("r", "robots")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "rule_type",
+                    models.CharField(
+                        choices=[
+                            ("surt", "SURT"),
+                            ("surt-neg", "SURT negation"),
+                            ("regex", "regular expression"),
+                            ("daterange", "date range"),
+                            ("warcname", "WARC name (or regex)"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("surt", models.TextField()),
+                ("capture_start", models.DateTimeField()),
+                ("capture_end", models.DateTimeField()),
+                ("retrieval_start", models.DateTimeField()),
+                ("retrieval_end", models.DateTimeField()),
+                ("seconds_since_capture", models.IntegerField()),
+                ("who", models.CharField(max_length=50)),
+                ("private_comment", models.TextField(blank=True)),
+                ("public_comment", models.TextField(blank=True)),
+                ("enabled", models.BooleanField()),
             ],
             options={
-                'ordering': ['surt'],
+                "ordering": ["surt"],
             },
         ),
         migrations.CreateModel(
-            name='RuleChange',
+            name="RuleChange",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('policy', models.CharField(choices=[('b', 'block'), ('a', 'allow'), ('r', 'robots')], max_length=1)),
-                ('rule_type', models.CharField(choices=[('surt', 'SURT'), ('surt-neg', 'SURT negation'), ('regex', 'regular expression'), ('daterange', 'date range'), ('warcname', 'WARC name (or regex)')], max_length=10)),
-                ('surt', models.TextField()),
-                ('capture_start', models.DateTimeField()),
-                ('capture_end', models.DateTimeField()),
-                ('retrieval_start', models.DateTimeField()),
-                ('retrieval_end', models.DateTimeField()),
-                ('seconds_since_capture', models.IntegerField()),
-                ('who', models.CharField(max_length=50)),
-                ('private_comment', models.TextField(blank=True)),
-                ('public_comment', models.TextField(blank=True)),
-                ('enabled', models.BooleanField()),
-                ('change_date', models.DateTimeField(auto_now=True)),
-                ('change_user', models.TextField()),
-                ('change_comment', models.TextField()),
-                ('change_type', models.CharField(choices=[('c', 'created'), ('u', 'updated'), ('d', 'deleted')], max_length=1)),
-                ('rule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rule_change', to='rules.Rule')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "policy",
+                    models.CharField(
+                        choices=[("b", "block"), ("a", "allow"), ("r", "robots")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "rule_type",
+                    models.CharField(
+                        choices=[
+                            ("surt", "SURT"),
+                            ("surt-neg", "SURT negation"),
+                            ("regex", "regular expression"),
+                            ("daterange", "date range"),
+                            ("warcname", "WARC name (or regex)"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("surt", models.TextField()),
+                ("capture_start", models.DateTimeField()),
+                ("capture_end", models.DateTimeField()),
+                ("retrieval_start", models.DateTimeField()),
+                ("retrieval_end", models.DateTimeField()),
+                ("seconds_since_capture", models.IntegerField()),
+                ("who", models.CharField(max_length=50)),
+                ("private_comment", models.TextField(blank=True)),
+                ("public_comment", models.TextField(blank=True)),
+                ("enabled", models.BooleanField()),
+                ("change_date", models.DateTimeField(auto_now=True)),
+                ("change_user", models.TextField()),
+                ("change_comment", models.TextField()),
+                (
+                    "change_type",
+                    models.CharField(
+                        choices=[("c", "created"), ("u", "updated"), ("d", "deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "rule",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="rule_change",
+                        to="rules.Rule",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AddIndex(
-            model_name='rule',
-            index=models.Index(fields=['surt'], name='rules_rule_surt_014cd0_idx'),
+            model_name="rule",
+            index=models.Index(fields=["surt"], name="rules_rule_surt_014cd0_idx"),
         ),
     ]

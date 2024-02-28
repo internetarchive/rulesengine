@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 def date_renderer(obj):
     if isinstance(obj, datetime):
-        return obj.replace(tzinfo=None).isoformat() + 'Z'
+        return obj.replace(tzinfo=None).isoformat() + "Z"
     return obj
 
 
@@ -19,11 +19,17 @@ def success(obj):
     Returns:
     A Django HttpResponse including the JSON with the proper MIME type.
     """
-    return HttpResponse(json.dumps({
-        'status': 'success',
-        'message': 'ok',
-        'result': obj,
-    }, default=date_renderer), content_type='application/json')
+    return HttpResponse(
+        json.dumps(
+            {
+                "status": "success",
+                "message": "ok",
+                "result": obj,
+            },
+            default=date_renderer,
+        ),
+        content_type="application/json",
+    )
 
 
 def error(message, obj):
@@ -38,11 +44,13 @@ def error(message, obj):
     A Django HttpResponse including the JSON with the proper MIME type.
     """
     result = {
-        'status': 'error',
-        'message': message,
+        "status": "error",
+        "message": message,
     }
     if obj is not None:
-        result['result'] = obj
-    return HttpResponse(json.dumps(result, default=date_renderer),
-                        content_type='application/json',
-                        status=400)
+        result["result"] = obj
+    return HttpResponse(
+        json.dumps(result, default=date_renderer),
+        content_type="application/json",
+        status=400,
+    )

@@ -6,18 +6,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0004_auto_20180810_1711'),
+        ("rules", "0004_auto_20180810_1711"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='rule',
-            old_name='negated_surt',
-            new_name='neg_surt',
+            model_name="rule",
+            old_name="negated_surt",
+            new_name="neg_surt",
         ),
         migrations.RenameField(
-            model_name='rulechange',
-            old_name='negated_surt',
-            new_name='neg_surt',
+            model_name="rulechange",
+            old_name="negated_surt",
+            new_name="neg_surt",
         ),
     ]

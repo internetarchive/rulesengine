@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0011_auto_20180917_1804'),
+        ("rules", "0011_auto_20180917_1804"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rule',
-            name='protocol',
-            field=models.TextField(blank=True, help_text='The protocol to apply this rule to.'),
+            model_name="rule",
+            name="protocol",
+            field=models.TextField(
+                blank=True, help_text="The protocol to apply this rule to."
+            ),
         ),
         migrations.AddField(
-            model_name='rulechange',
-            name='protocol',
-            field=models.TextField(blank=True, help_text='The protocol to apply this rule to.'),
+            model_name="rulechange",
+            name="protocol",
+            field=models.TextField(
+                blank=True, help_text="The protocol to apply this rule to."
+            ),
         ),
     ]

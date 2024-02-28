@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0003_auto_20180809_2243'),
+        ("rules", "0003_auto_20180809_2243"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rule',
-            name='negated_surt',
+            model_name="rule",
+            name="negated_surt",
             field=models.TextField(blank=True),
         ),
         migrations.AddField(
-            model_name='rulechange',
-            name='negated_surt',
+            model_name="rulechange",
+            name="negated_surt",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='rule',
-            name='surt',
+            model_name="rule",
+            name="surt",
             field=models.TextField(),
         ),
         migrations.AlterField(
-            model_name='rulechange',
-            name='surt',
+            model_name="rulechange",
+            name="surt",
             field=models.TextField(),
         ),
     ]
