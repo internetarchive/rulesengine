@@ -170,6 +170,7 @@ class RuleAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "collection",
         "partner",
         "status_code",
+        "content_type",
         "private_comment",
         "public_comment",
         "rewrite_from",

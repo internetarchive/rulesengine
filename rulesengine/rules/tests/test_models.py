@@ -25,6 +25,7 @@ class RuleBaseTestCase(TestCase):
                 "protocol": "http",
                 "subdomain": "",
                 "status_code": 403,
+                "content_type": "image/gif",
                 "capture_date": {
                     "start": now.isoformat(),
                     "end": now.isoformat(),
@@ -55,6 +56,7 @@ class RuleBaseTestCase(TestCase):
         self.assertEqual(base.protocol, "http")
         self.assertEqual(base.subdomain, "")
         self.assertEqual(base.status_code, 403)
+        self.assertEqual(base.content_type, "image/gif")
         self.assertEqual(base.capture_date_start, now)
         self.assertEqual(base.capture_date_end, now)
         self.assertEqual(base.retrieve_date_start, now)
@@ -112,6 +114,7 @@ class RuleTestCase(TestCase):
                 "protocol": "http",
                 "subdomain": "www",
                 "status_code": 403,
+                "content_type": "image/gif",
                 "capture_date": {
                     "start": now.isoformat(),
                     "end": now.isoformat(),
@@ -146,6 +149,7 @@ class RuleTestCase(TestCase):
                 "protocol": "http",
                 "subdomain": "www",
                 "status_code": 403,
+                "content_type": "image/gif",
                 "capture_date": {
                     "start": now.isoformat(),
                     "end": now.isoformat(),
@@ -180,6 +184,7 @@ class RuleTestCase(TestCase):
                 "protocol": "http",
                 "subdomain": "www",
                 "status_code": 403,
+                "content_type": "image/gif",
                 "capture_date": {
                     "start": now.isoformat(),
                     "end": now.isoformat(),
@@ -209,6 +214,7 @@ class RuleTestCase(TestCase):
                 "protocol": "http",
                 "subdomain": "www",
                 "status_code": 403,
+                "content_type": "image/gif",
                 "capture_date": {
                     "start": now.isoformat(),
                     "end": now.isoformat(),
@@ -238,6 +244,7 @@ class RuleTestCase(TestCase):
                 "environment": "prod",
                 "surt": "https://(org,",
                 "status_code": 403,
+                "content_type": "image/gif",
                 "capture_date": {
                     "start": now.isoformat(),
                     "end": now.isoformat(),
@@ -281,6 +288,7 @@ class RuleChangeTestCase(TestCase):
             "environment": "prod",
             "surt": "https://(org,",
             "status_code": 403,
+            "content_type": "image/gif",
             "capture_date": {
                 "start": self.now.isoformat(),
                 "end": self.now.isoformat(),
@@ -337,6 +345,7 @@ class RuleChangeTestCase(TestCase):
                 "environment": "prod",
                 "surt": "https://(org,",
                 "status_code": 403,
+                "content_type": "image/gif",
                 "capture_date": {
                     "start": self.now.isoformat(),
                     "end": self.now.isoformat(),
@@ -371,6 +380,7 @@ class RuleChangeTestCase(TestCase):
                     "environment": "prod",
                     "surt": "https://(org,",
                     "status_code": 403,
+                    "content_type": "image/gif",
                     "capture_date": {
                         "start": self.now.isoformat(),
                         "end": self.now.isoformat(),
