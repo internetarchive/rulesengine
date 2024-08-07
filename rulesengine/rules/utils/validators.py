@@ -29,6 +29,7 @@ SCHEMA = {
         "protocol": {"type": "string"},
         "subdomain": {"type": "string"},
         "status_code": {"type": "integer"},
+        "content_type": {"type": "string"},
         "capture_date": {
             "type": "object",
             "properties": {

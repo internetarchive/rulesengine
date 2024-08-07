@@ -48,6 +48,13 @@ class RuleBase(models.Model):
         blank=True,
     )
 
+    # Used for content-type rules
+    content_type = models.TextField(
+        help_text="""Content-Type, like text/html, image/gif, to apply this rule to.""",
+        null=True,
+        blank=True,
+    )
+
     # Used for daterange rules
     capture_date_start = models.DateTimeField(
         help_text="""The earliest date of capture to start applying this rule.""",  # noqa: E501
@@ -145,6 +152,7 @@ class RuleBase(models.Model):
         self.protocol = values.get("protocol", "")
         self.subdomain = values.get("subdomain", "")
         self.status_code = values.get("status_code")
+        self.content_type = values.get("content_type")
         if "capture_date" in values:
             self.capture_date_start = parse_date(values["capture_date"]["start"])
             self.capture_date_end = parse_date(values["capture_date"]["end"])
@@ -180,6 +188,8 @@ class RuleBase(models.Model):
             values["subdomain"] = self.subdomain
         if self.status_code:
             values["status_code"] = self.status_code
+        if self.content_type:
+            values["content_type"] = self.content_type
         if self.seconds_since_capture:
             values["seconds_since_capture"] = self.seconds_since_capture
         if self.collection:
