@@ -20,5 +20,5 @@ six==1.15.0
 surt==0.3.0
 tldextract==2.2.0
 urlcanon==0.2
-urllib3==1.26.5
+urllib3==2.5.0
 Werkzeug==0.15.3
